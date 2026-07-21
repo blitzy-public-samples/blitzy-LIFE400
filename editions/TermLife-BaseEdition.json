@@ -1,0 +1,118 @@
+{
+  "editionCode": "TermLife-BaseEdition",
+  "effectiveDate": "2026-01-01",
+  "rules": {
+    "clauses": [
+      {
+        "clauseCode": "termLifeDeathBenefit",
+        "availability": "Available",
+        "terms": [
+          {
+            "termCode": "plan",
+            "defaultValue": "opt1",
+            "availability": "Available",
+            "options": [
+              {
+                "code": "opt1",
+                "planCode": "T1001",
+                "minIssueAge": 18,
+                "maxIssueAge": 60,
+                "minSumAssured": 10000000000000,
+                "maxSumAssured": 50000000000000,
+                "termYears": 10,
+                "maturityAge": 70,
+                "graceDays": 30,
+                "contestabilityYrs": 2,
+                "suicideYrs": 2,
+                "reinstateWindow": 730,
+                "annualPolicyFee": 4500,
+                "serviceFee": 1500,
+                "taxRate": 0.02
+              },
+              {
+                "code": "opt2",
+                "planCode": "T2001",
+                "minIssueAge": 18,
+                "maxIssueAge": 55,
+                "minSumAssured": 10000000000000,
+                "maxSumAssured": 90000000000000,
+                "termYears": 20,
+                "maturityAge": 75,
+                "graceDays": 30,
+                "contestabilityYrs": 2,
+                "suicideYrs": 2,
+                "reinstateWindow": 730,
+                "annualPolicyFee": 5500,
+                "serviceFee": 1500,
+                "taxRate": 0.02
+              },
+              {
+                "code": "opt3",
+                "planCode": "T6501",
+                "minIssueAge": 18,
+                "maxIssueAge": 50,
+                "minSumAssured": 10000000000000,
+                "maxSumAssured": 75000000000000,
+                "termYears": null,
+                "maturityAge": 65,
+                "graceDays": 30,
+                "contestabilityYrs": 2,
+                "suicideYrs": 2,
+                "reinstateWindow": 730,
+                "annualPolicyFee": 6000,
+                "serviceFee": 1500,
+                "taxRate": 0.02
+              }
+            ]
+          },
+          {
+            "termCode": "sumAssured",
+            "availability": "Available"
+          }
+        ]
+      },
+      {
+        "clauseCode": "ADB01",
+        "availability": "Available",
+        "terms": [
+          {
+            "termCode": "riderSumAssured",
+            "availability": "Available"
+          }
+        ]
+      },
+      {
+        "clauseCode": "WOP01",
+        "availability": "Available",
+        "terms": []
+      },
+      {
+        "clauseCode": "CI001",
+        "availability": "Available",
+        "terms": [
+          {
+            "termCode": "riderSumAssured",
+            "availability": "Available",
+            "maxValue": 500000
+          }
+        ]
+      }
+    ],
+    "fields": [
+      { "fieldCode": "planCode", "required": true },
+      { "fieldCode": "contractStatus", "required": false },
+      { "fieldCode": "issueChannel", "required": false },
+      { "fieldCode": "billingMode", "required": true },
+      { "fieldCode": "insuredName", "required": true },
+      { "fieldCode": "dateOfBirth", "required": false },
+      { "fieldCode": "issueAge", "required": true },
+      { "fieldCode": "gender", "required": true },
+      { "fieldCode": "smokerStatus", "required": true },
+      { "fieldCode": "uwClass", "required": false },
+      { "fieldCode": "occupationClass", "required": false },
+      { "fieldCode": "highRiskAvocation", "required": false },
+      { "fieldCode": "sumAssured", "required": true },
+      { "fieldCode": "policyLoanBalance", "required": false }
+    ]
+  }
+}
