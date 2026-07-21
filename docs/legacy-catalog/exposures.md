@@ -21,7 +21,7 @@ Each elective rider carries an independent sum assured held in the fixed five-el
 
 ### Rider Attributes (Key Data)
 
-The remaining `PM-RIDER-TABLE` fields are attributes that qualify each rider sub-exposure above; they are key data, not exposures in their own right.
+The remaining `PM-RIDER-TABLE` fields [QCPYSRC/POLDATA.cpy:L88-L96] are attributes that qualify each rider sub-exposure above; this catalog classifies them as key data rather than exposures — a source-derived modeling classification, since among the rider fields only `PM-RIDER-SUM-ASSURED` [QCPYSRC/POLDATA.cpy:L91] holds a benefit amount.
 
 | Attribute | Field (PIC) | Coded Domain | Source | Business Purpose (WHY) |
 |-----------|-------------|--------------|--------|------------------------|
@@ -34,7 +34,7 @@ The single covered peril is **death**, encoded as the only condition-name on the
 
 ## Loan-Balance Offset
 
-The exposure actually paid is net of any outstanding policy loan. `PM-POLICY-LOAN-BALANCE` `PIC 9(13)V99 VALUE 0` [QCPYSRC/POLDATA.cpy:L77] records the loan drawn against the policy, and the settlement routine subtracts it from the payout whenever it is positive [QCBLLESRC/CLMADJB.cbl:L275-L279]. This prevents the insurer paying out the full sum assured while an unrecovered loan is still owed against the same contract.
+The exposure actually paid is net of any outstanding policy loan. `PM-POLICY-LOAN-BALANCE` `PIC 9(13)V99 VALUE 0` [QCPYSRC/POLDATA.cpy:L77] records the loan drawn against the policy, and rule CL-504 subtracts it from the payout whenever it is positive — source comment `DEDUCT OUTSTANDING LOAN BALANCE` [QCBLLESRC/CLMADJB.cbl:L275-L279].
 
 ## Settlement Adjustments
 
