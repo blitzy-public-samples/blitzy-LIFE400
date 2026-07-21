@@ -1,29 +1,36 @@
 # Exposures
 
-In LIFE400 the *exposure* — the amount at risk and the benefit ultimately payable — is the **sum assured / death benefit** borne by the single insured life, and the only covered peril is death. This property-and-casualty term "exposure" maps directly onto the life-insurance benefit copybook groups: the base exposure is `PM-SUM-ASSURED` inside `PM-BENEFIT-DETAILS` [QCPYSRC/POLDATA.cpy:L75-L96], the sole peril is death [QCPYSRC/POLDATA.cpy:L141], and each elective rider carries its own sub-exposure within the `PM-RIDER-TABLE`. The exposure finally settled is reduced by any outstanding policy loan and by a modal premium withheld when the contract is in its grace period, so the paid amount can be less than the face sum assured. The single life that bears this exposure is catalogued in [risk-objects.md](risk-objects.md).
+In LIFE400 the amount at risk and the benefit ultimately payable is the **sum assured / death benefit** carried in `PM-SUM-ASSURED` inside `PM-BENEFIT-DETAILS` [QCPYSRC/POLDATA.cpy:L75-L96], and the only covered peril is death [QCPYSRC/POLDATA.cpy:L141]. **INFERRED:** the property-and-casualty terms *exposure* and *rider sub-exposure* are not first-class source entities; they are mapped here onto `PM-SUM-ASSURED` [QCPYSRC/POLDATA.cpy:L76] and the per-rider `PM-RIDER-SUM-ASSURED` within `PM-RIDER-TABLE` [QCPYSRC/POLDATA.cpy:L91]. At settlement the payout is reduced by a modal premium withheld while the contract is in its grace period [QCBLLESRC/CLMADJB.cbl:L271-L274] and by any outstanding policy loan [QCBLLESRC/CLMADJB.cbl:L275-L279], so the paid amount can be less than the face sum assured. The single life that bears this exposure is catalogued in [risk-objects.md](risk-objects.md).
 
 ## Sum Assured Exposure
 
-The base exposure is one field: the face amount the contract promises on the death of the insured. It is stored gross and reduced only at claim time (see [Settlement Adjustments](#settlement-adjustments)).
+The base exposure is one field: the face amount the contract promises on the death of the insured. Settlement begins from the current stored sum assured and then applies the claim-time adjustments below (see [Settlement Adjustments](#settlement-adjustments)); the stored amount can itself be changed beforehand by a sum-assured servicing amendment [QCBLLESRC/SVCMNT.cbl:L218-L243].
 
 | Exposure | Field (PIC) | Peril | Offsets/Adjustments | Source | Business Purpose (WHY) |
 |----------|-------------|-------|---------------------|--------|------------------------|
-| Sum Assured / Death Benefit | `PM-SUM-ASSURED` `PIC 9(13)V99` | Death only (`PM-CLAIM-DEATH` `'DT'`) | Outstanding loan balance (`PM-POLICY-LOAN-BALANCE`); grace-period modal premium | field [QCPYSRC/POLDATA.cpy:L76]; peril [QCPYSRC/POLDATA.cpy:L141]; loan [QCPYSRC/POLDATA.cpy:L77]; grace [QCBLLESRC/CLMADJB.cbl:L271-L274] | The face amount promised to the beneficiary on the insured's death; it is the primary amount at risk that the whole contract is priced and reserved against. |
-| Settled benefit amount | `PM-CLAIM-PAYMENT-AMT` `PIC 9(13)V99` | Death only (`PM-CLAIM-DEATH` `'DT'`) | Net of all settlement offsets, floored at zero | field [QCPYSRC/POLDATA.cpy:L169]; waterfall [QCBLLESRC/CLMADJB.cbl:L256-L283] | Holds the exposure actually paid after adding the ADB sub-exposure and deducting loan and grace premium, so the cheque never exceeds the net entitlement. |
+| Sum Assured / Death Benefit | `PM-SUM-ASSURED` `PIC 9(13)V99` | Death only (`PM-CLAIM-DEATH` `'DT'`) | Outstanding loan balance (`PM-POLICY-LOAN-BALANCE`); grace-period modal premium | field [QCPYSRC/POLDATA.cpy:L76]; peril [QCPYSRC/POLDATA.cpy:L141]; loan [QCPYSRC/POLDATA.cpy:L77]; grace [QCBLLESRC/CLMADJB.cbl:L271-L274] | The face amount promised to the beneficiary on the insured's death; it is also the base against which the base annual premium is computed [QCBLLESRC/NBUWB.cbl:L389-L395]. |
+| Settled benefit amount | `PM-CLAIM-PAYMENT-AMT` `PIC 9(13)V99` | Death only (`PM-CLAIM-DEATH` `'DT'`) | Net of all settlement offsets, floored at zero | field [QCPYSRC/POLDATA.cpy:L169]; waterfall [QCBLLESRC/CLMADJB.cbl:L256-L283] | Holds the exposure actually paid after adding the ADB sub-exposure and deducting loan and grace premium, so the payment never exceeds the net entitlement. |
 
 ## Rider Sub-Exposures
 
-Each elective rider carries an independent sum assured held in the fixed five-element `PM-RIDER-TABLE` [QCPYSRC/POLDATA.cpy:L88-L89]; these are sub-exposures of the base death benefit. The rider clauses that back these amounts are catalogued in [clauses.md](clauses.md).
+Each elective rider carries an independent sum assured held in the fixed five-element `PM-RIDER-TABLE` [QCPYSRC/POLDATA.cpy:L88-L89]; this per-rider amount is the sub-exposure of the base death benefit. The rider clauses that back these amounts are catalogued in [clauses.md](clauses.md).
 
 | Sub-Exposure | Field (PIC) | Cardinality | Additive to Death Benefit? | Source | Business Purpose (WHY) |
 |--------------|-------------|-------------|----------------------------|--------|------------------------|
 | Rider sum assured | `PM-RIDER-SUM-ASSURED` `PIC 9(13)V99` | 0..5 per policy (`OCCURS 5`) | Only the `'ADB01'` rider, and only on accidental death | field [QCPYSRC/POLDATA.cpy:L91]; additive rule [QCBLLESRC/CLMADJB.cbl:L259-L270] | The face amount of an individual rider benefit; for accidental death the accidental-death-benefit rider's amount is added on top of the base sum assured. |
-| Rider code | `PM-RIDER-CODE` `PIC X(05)` | 0..5 per policy | Selects which sub-exposure applies | [QCPYSRC/POLDATA.cpy:L90] | Identifies which rider clause a sub-exposure belongs to; the settlement logic keys on the literal `'ADB01'` to decide the additive accidental-death benefit. |
-| Rider status | `PM-RIDER-STATUS` `PIC X(01)` | 0..5 per policy | Only an active (`'A'`) rider participates | field [QCPYSRC/POLDATA.cpy:L94]; active [QCPYSRC/POLDATA.cpy:L95]; removed [QCPYSRC/POLDATA.cpy:L96] | Distinguishes an in-force rider sub-exposure from a removed one, so a cancelled rider contributes nothing to the payout. |
+
+### Rider Attributes (Key Data)
+
+The remaining `PM-RIDER-TABLE` fields are attributes that qualify each rider sub-exposure above; they are key data, not exposures in their own right.
+
+| Attribute | Field (PIC) | Coded Domain | Source | Business Purpose (WHY) |
+|-----------|-------------|--------------|--------|------------------------|
+| Rider code | `PM-RIDER-CODE` `PIC X(05)` | Rider identifier literal (e.g., `'ADB01'`) | [QCPYSRC/POLDATA.cpy:L90] | Identifies which rider a slot holds; settlement keys on the literal `'ADB01'` to decide the additive accidental-death benefit [QCBLLESRC/CLMADJB.cbl:L263-L264]. |
+| Rider status | `PM-RIDER-STATUS` `PIC X(01)` | `PM-RIDER-ACTIVE` `'A'` [QCPYSRC/POLDATA.cpy:L95]; `PM-RIDER-REMOVED` `'R'` [QCPYSRC/POLDATA.cpy:L96] | [QCPYSRC/POLDATA.cpy:L94] | Marks a rider slot in force or removed; only an active rider participates in the death payout [QCBLLESRC/CLMADJB.cbl:L263-L264]. |
 
 ## Peril
 
-The single covered peril is **death**, encoded as the only condition-name on the claim-type field: `PM-CLAIM-TYPE` `PIC X(02)` carries exactly one `88` level, `PM-CLAIM-DEATH VALUE 'DT'` [QCPYSRC/POLDATA.cpy:L140-L141]. No other claim type or peril — maturity, surrender, disability, or survival — is defined in source, so every exposure in this catalog is a death exposure and any non-death benefit is `NOT SPECIFIED IN SOURCE`.
+The single covered peril is **death**, encoded as the only condition-name on the claim-type field: `PM-CLAIM-TYPE` `PIC X(02)` carries exactly one `88` level, `PM-CLAIM-DEATH VALUE 'DT'` [QCPYSRC/POLDATA.cpy:L140-L141]. Both claim entry points reject anything else — adjudication and maintenance each fail a non-death claim with `ONLY DEATH CLAIMS ARE SUPPORTED` [QCBLLESRC/CLMADJB.cbl:L165-L169] [QCBLLESRC/CLMMNT.cbl:L183-L186] — so every exposure in this catalog is a death exposure and any non-death benefit is `NOT SPECIFIED IN SOURCE`.
 
 ## Loan-Balance Offset
 
@@ -57,7 +64,9 @@ erDiagram
         number PM_RIDER_SUM_ASSURED
         string PM_RIDER_STATUS
     }
-%% Source: QCPYSRC/POLDATA.cpy L75-L96, L141; QCBLLESRC/CLMADJB.cbl L256-L283
+%% Source: exposure fields QCPYSRC/POLDATA.cpy L75-L96, peril L141;
+%% INSURED_LIFE and policy-to-insured 1:1 cardinality QCPYSRC/POLDATA.cpy L54-L73;
+%% settlement waterfall QCBLLESRC/CLMADJB.cbl L256-L283
 ```
 
 ## Observations

@@ -2,7 +2,7 @@
 
 ## Overview
 
-LIFE400 is a single-line-of-business term-life administration system: underwriting, servicing, and claims all share one policy master record, so every issued contract rolls up to one conceptual product line [QCPYSRC/POLDATA.cpy:L11]. That line is **inferred** rather than a first-class entity — the source carries no product-line code, field, or structure, only the per-policy `PM-PLAN-CODE` plan discriminator [QCPYSRC/POLDATA.cpy:L21]. Its three child plans — T1001, T2001, and T6501 — are the term products enumerated in the README plan set, confirming a single term-life line [README.md:L60-L66]. Per-plan parameters are catalogued in [products.md](products.md); this file documents only the parent line and its parent→child relationship.
+All six LIFE400 policy programs share one policy master record [QCPYSRC/POLDATA.cpy:L11-L12], and the only plan discriminator carried per policy is `PM-PLAN-CODE`; the source defines no product-line code, field, or structure [QCPYSRC/POLDATA.cpy:L21]. The README describes the system as a single Term Life policy system [README.md:L1] whose product set is exactly the three term plans T1001, T2001, and T6501 [README.md:L60-L66]. **INFERRED:** from that shared master record and three-plan term set, every contract is modelled as rolling up to one conceptual "Term Life" product line; this line is a modelling inference, not a first-class source entity [QCPYSRC/POLDATA.cpy:L11-L21] [README.md:L1] [README.md:L60-L66]. Per-plan parameters are catalogued in [products.md](products.md); this file documents only the inferred parent line and its parent→child relationship.
 
 ## Product Line
 
