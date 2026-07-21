@@ -186,7 +186,6 @@ At claim time `1500-CALCULATE-SETTLEMENT` transforms the sum assured into the am
 4. **CL-504 — Deduct loan balance.** Any positive outstanding policy-loan balance is subtracted to recover the debt from the death benefit [QCBLLESRC/CLMADJB.cbl:L275-L279].
 5. **Floor at zero.** If the running total is negative it is reset to zero, so a claim can never produce a negative payout [QCBLLESRC/CLMADJB.cbl:L280-L283].
 
-
 ## Edition / Version Tracking
 
 Every source member carries a `VERSION:` header comment; these are the edition markers used to reason about which copy of the duplicated business logic is current. The version comment sits on line 6 for COBOL, copybook, and CL members [QCBLLESRC/NBUWB.cbl:L6] [QCPYSRC/POLDATA.cpy:L6] and on line 7 for DDS members, which carry an extra `TYPE:` header line [QDDSSRC/POLMST.pf:L3] that shifts the version down to line 7 [QDDSSRC/POLMST.pf:L7]; each row below cites the member's actual header line.
