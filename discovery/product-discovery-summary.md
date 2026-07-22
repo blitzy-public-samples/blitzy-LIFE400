@@ -26,9 +26,11 @@ COBOL validation logic (`QCBLLESRC/NBUWB.cbl`). The distillation task is therefo
 The headline outcome of discovery is that LIFE400 contains **exactly ONE mono-line APD Product — "Term Life"
 (code `TermLife`, abbreviation `TL`)** — with **one Line (`TermLifeLine`)** and **one risk object
 (`InsuredLife`)**. The three legacy plan codes `T1001` / `T2001` / `T6501` are **not** three separate products;
-they are realized as three plan-level **Option terms** (`opt1` / `opt2` / `opt3`) on the base coverage clause
-`termLifeDeathBenefit`, because they share one record, one file, and one program set and differ only in
-parameter values. The three riders `ADB01` (Accidental Death Benefit), `WOP01` (Waiver of Premium), and
+they are realized as the three **options** (`opt1` / `opt2` / `opt3`) of a single plan-level **Option term**
+(`plan`) on the base coverage clause `termLifeDeathBenefit`, because they share one record, one file, and one
+program set and — within the plan-parameter load paragraph `1100-LOAD-PLAN-PARAMETERS` — differ only in
+parameter values. (A few plan-specific *runtime* predicates exist and remain in the untouched COBOL; see §4.)
+The three riders `ADB01` (Accidental Death Benefit), `WOP01` (Waiver of Premium), and
 `CI001` (Critical Illness) are realized as `clauseType: "Coverage"` clauses under the `SupplementaryBenefits`
 category — **never as separate products**. All rating factors, computed premiums, per-transaction state, and
 the 333 catalogued business rules remain in the untouched COBOL; only product *structure* is distilled, which
@@ -53,7 +55,7 @@ flowchart TD
     A["Candidates:<br/>plan codes T1001 / T2001 / T6501"] --> B{"Gate 1:<br/>Share one policy record?"}
     B -->|"YES — 01 WS-POLICY-MASTER-REC<br/>COPY POLDATA in 7 of 8 programs"| C{"Gate 2:<br/>Share one master file?"}
     B -->|No| X["Distinct Products<br/>(NOT the LIFE400 case)"]
-    C -->|"YES — single POLMST physical file<br/>+ POLMSTL1 logical keyed by POLID"| D{"Gate 3:<br/>Same program set,<br/>parameter-only differences?"}
+    C -->|"YES — single POLMST physical file<br/>+ POLMSTL1 logical keyed by POLID"| D{"Gate 3:<br/>Same program set;<br/>plan-load paragraph parameter-only?"}
     C -->|No| X
     D -->|"YES — one EVALUATE PM-PLAN-CODE<br/>in NBUWB 1100-LOAD-PLAN-PARAMETERS"| E["Single Product 'Term Life'<br/>with plan-level Option terms"]
     D -->|No| X
@@ -63,8 +65,10 @@ flowchart TD
    the single shared record, copied by **7 of 8** COBOL programs (§3).
 2. **Gate 2 — Share one master file?** → **YES.** A single `POLMST` physical file plus the `POLMSTL1` logical
    view, keyed by `POLID`, back every program (§3).
-3. **Gate 3 — Same program set with parameter-only differences?** → **YES.** A single
-   `EVALUATE PM-PLAN-CODE` in `NBUWB.cbl` loads plan-specific parameters; the plans differ only in values (§4).
+3. **Gate 3 — Same program set, parameter-only in the plan-load paragraph?** → **YES.** A single
+   `EVALUATE PM-PLAN-CODE` in `NBUWB.cbl` `1100-LOAD-PLAN-PARAMETERS` loads plan-specific parameters; *within
+   that paragraph* the plans differ only in values (§4). A few plan-specific runtime predicates exist elsewhere
+   (§4) but stay in COBOL and create no disjoint product structure.
 
 Because all three gates resolve to YES, the candidates converge on a **single Product "Term Life" with
 plan-level Option terms**. Per the report-don't-guess constraint, this split is recorded and justified from
@@ -113,19 +117,25 @@ Across all three axes — **record**, **file**, and **program set** — LIFE400 
 The three candidate plan codes `T1001` (10-Year Term), `T2001` (20-Year Term), and `T6501` (Term-to-65) are
 documented in the README plans table `[README.md:L62-L66]`. In the code they are selected by a **single
 `EVALUATE PM-PLAN-CODE`** statement inside the `NBUWB.cbl` paragraph `1100-LOAD-PLAN-PARAMETERS`
-`[QCBLLESRC/NBUWB.cbl:L145-L192]`. Each `WHEN` branch does nothing but `MOVE` a set of numeric parameters into
-the shared `PM-PLAN-PARAMETERS` group — there is no separate record, file, or program per plan. This is the
+`[QCBLLESRC/NBUWB.cbl:L145-L192]`. Within `1100-LOAD-PLAN-PARAMETERS`, each `WHEN` branch merely assigns a set of numeric parameters into
+the shared `PM-PLAN-PARAMETERS` group (the `T6501` branch additionally computes its term-years at load,
+`[QCBLLESRC/NBUWB.cbl:L187-L188]`) — there is no separate record, file, or program per plan. This shared record/file/program architecture is the
 decisive evidence that the plans are **variations of one product**, not three products.
 
-The per-plan parameters, transcribed exactly as coded, are below. These values are the authoritative source
-for the `plan` Option-term option values `opt1` / `opt2` / `opt3` in `editions/TermLife-BaseEdition.json`
-(the plan code is carried in each option's name):
+The per-plan parameters, transcribed exactly as coded, are below. With **one exception**, these values are the
+source for the `plan` Option-term option values `opt1` / `opt2` / `opt3` in `editions/TermLife-BaseEdition.json`,
+where each **edition** option carries its plan code in a dedicated `planCode` **property** (the human-readable
+plan label — e.g. `T1001 - 10-Year Term` — is carried in the corresponding **product** option's `name`, not in
+the edition). The exception is the **sum-assured bounds**: the raw COBOL `MOVE` literals are 14-integer-digit
+values that exceed the `Money(15,2)` capacity of the APD sum-assured attribute, so the edition instead carries
+the README-documented magnitudes. The `maxSumAssured` column below therefore shows both the raw COBOL literal
+and the current edition value; the full lineage, exact factors, and capacity rationale are disclosed in §9:
 
-| Plan (option) | maxIssueAge | maxSumAssured (COBOL literal) | termYears | maturityAge | annualPolicyFee |
-|---------------|:-----------:|:-----------------------------:|:---------:|:-----------:|:---------------:|
-| `T1001` (`opt1`) | 60 | `50000000000000` | 10 | 70 | 4500 |
-| `T2001` (`opt2`) | 55 | `90000000000000` | 20 | 75 | 5500 |
-| `T6501` (`opt3`) | 50 | `75000000000000` | *null* — computed = `PM-MATURITY-AGE − PM-ISSUE-AGE` `[QCBLLESRC/NBUWB.cbl:L187-L188]` | 65 | 6000 |
+| Plan (option) | maxIssueAge | maxSumAssured — COBOL literal → edition value (§9) | termYears | maturityAge | annualPolicyFee |
+|---------------|:-----------:|:--------------------------------------------------:|:---------:|:-----------:|:---------------:|
+| `T1001` (`opt1`) | 60 | `50000000000000` → `50000000000` | 10 | 70 | 4500 |
+| `T2001` (`opt2`) | 55 | `90000000000000` → `90000000000` | 20 | 75 | 5500 |
+| `T6501` (`opt3`) | 50 | `75000000000000` → `75000000000` | *null* — computed = `PM-MATURITY-AGE − PM-ISSUE-AGE` `[QCBLLESRC/NBUWB.cbl:L187-L188]` | 65 | 6000 |
 
 Crucially, the parameters that are **identical across all three plans** confirm the single-product reading —
 the plans share one common rule frame and differ only in a handful of dials `[QCBLLESRC/NBUWB.cbl:L145-L192]`:
@@ -133,14 +143,32 @@ the plans share one common rule frame and differ only in a handful of dials `[QC
 | Shared parameter | Value | Shared parameter | Value |
 |------------------|:-----:|------------------|:-----:|
 | `minIssueAge`       | 18                | `suicideYrs`        | 2      |
-| `minSumAssured`     | `10000000000000`  | `reinstateWindow`   | 730    |
+| `minSumAssured`     | `10000000000000` → `10000000` | `reinstateWindow`   | 730    |
 | `graceDays`         | 30                | `serviceFee`        | 1500   |
 | `contestabilityYrs` | 2                 | `taxRate`           | 0.0200 |
 
-**Conclusion.** Because the record, the master file, and the program set are all shared and only parameter
-values differ, the three plan codes are modeled as **Option-term choices on the base coverage clause
-`termLifeDeathBenefit`** — resolved to option codes `opt1` / `opt2` / `opt3`, with the plan codes carried in
-the option names. They are **never** promoted to distinct products.
+**Conclusion.** Because the record, the master file, and the program set are all shared — and, within
+`1100-LOAD-PLAN-PARAMETERS`, differ only in parameter values — the three plan codes are modeled as the
+**options `opt1` / `opt2` / `opt3` of a single `plan` Option term on the base coverage clause
+`termLifeDeathBenefit`** — with each **product** option's `name` carrying the plan label (e.g. `T1001 - 10-Year Term`) and each
+**edition** option carrying its plan code in a `planCode` property. They are **never** promoted to distinct
+products.
+
+**Plan-specific runtime predicates (disclosed).** Scoping matters: *parameter-only* describes the load
+paragraph `1100-LOAD-PLAN-PARAMETERS`, **not** the whole system. A handful of plan-specific **runtime**
+predicates keyed on the plan code exist and remain in the untouched COBOL:
+
+- **T6501 hazardous-occupation bar (NB-205):** when the plan is `T6501` and occupation class is 3, the
+  application is rejected — enforced in both `NBUWB.cbl` `[QCBLLESRC/NBUWB.cbl:L253-L259]` and `NBUWMNT.cbl`
+  `[QCBLLESRC/NBUWMNT.cbl:L326-L331]`.
+- **T6501 remaining-term recompute on plan change:** servicing recomputes the term as maturity age minus
+  attained age and rejects a zero remaining term `[QCBLLESRC/SVCBILB.cbl:L247-L257]`.
+- **T6501 term derivation at load:** the load paragraph itself computes the term-years for `T6501`
+  `[QCBLLESRC/NBUWB.cbl:L187-L188]`.
+
+These are behavioral rules, not structural divergences: all three plans still share one record, one master
+file, and one program set, so the single-product conclusion stands and every one of these predicates stays in
+COBOL as runtime logic — none is re-expressed in the product model.
 
 ---
 
@@ -184,11 +212,17 @@ risk object:
 
 - the rider code `PM-RIDER-CODE` `[QCPYSRC/POLDATA.cpy:L90]` becomes the **clause discriminator** (which rider —
   `ADB01` / `WOP01` / `CI001`);
-- the rider sum assured `PM-RIDER-SUM-ASSURED` `[QCPYSRC/POLDATA.cpy:L91]` and the rider rate
-  `PM-RIDER-RATE` `[QCPYSRC/POLDATA.cpy:L92]` become **clause terms**.
+- the rider sum assured `PM-RIDER-SUM-ASSURED` `[QCPYSRC/POLDATA.cpy:L91]` becomes a **clause term**
+  (`riderSumAssured`, present on the `ADB01` and `CI001` clauses). The rider **rate** `PM-RIDER-RATE`
+  `[QCPYSRC/POLDATA.cpy:L92]` is **not** a product term — it is runtime rating input and is classified
+  *Unmapped* (see the traceability matrix and §5), consistent with all other rider rating staying in COBOL.
 
-The five-element table simply bounds how many rider clauses may attach to one policy (max 5, enforced at
-runtime by NB-501 `[QCBLLESRC/NBUWB.cbl:L351-L357]`); it does not indicate five distinct coverable objects.
+The five-element table simply bounds how many rider clauses may attach to one policy: the `OCCURS 5 TIMES`
+structure is the **effective cap**, because the validation loop in `1500-VALIDATE-RIDERS` varies the index only
+over slots 1–5 `[QCBLLESRC/NBUWB.cbl:L347-L348]`. The NB-501 `WS-RIDER-IDX > 5` guard
+`[QCBLLESRC/NBUWB.cbl:L351-L357]` is therefore **unreachable in that loop** (the running counter cannot exceed 5
+across five slots); it is a defensive check, not the operative bound. Either way the table indicates at most
+five rider coverages, not five distinct coverable objects.
 This resolution is stated here inline, at the point where the rider table is mapped.
 
 **`REDEFINES` — in force but unexercised.** A repository-wide scan of `QCBLLESRC/`, `QCPYSRC/`, `QCLSRC/`, and
@@ -261,22 +295,43 @@ computed exactly as before. Only the declarative product skeleton is lifted into
 **Coverage numbers.** Discovery reconciles the copybook super-set with the persisted DDS files to reach a
 complete field inventory: **94 distinct logical fields** total = **89 elementary fields** of
 `WS-POLICY-MASTER-REC` `[QCPYSRC/POLDATA.cpy:L14-L175]` + **5 standalone DDS fields** persisted only in the
-physical files. Of these, **37 are mapped** to the APD model and **57 are unmapped** (runtime/transaction
-state). The full field-by-field mapping and the runtime-field justifications live in the two sibling documents:
+physical files. Of these, **37 are mapped** to the APD model and **57 are classified as unmapped** (runtime/transaction
+state). This 37/57 split is the **traceability-matrix-side** classification at this checkpoint:
 
 - **`discovery/traceability-matrix.md`** — the unified 100%-coverage table (every COBOL field/record → APD
-  JSON path, each field exactly once).
-- **`discovery/unmapped-fields-report.md`** — the 57 runtime/transaction-state fields, each with an explicit
-  justification for exclusion from the product model.
+  JSON path, each field exactly once); the matrix independently proves 94 = 37 mapped + 57 provisionally
+  unmapped.
+- **`discovery/unmapped-fields-report.md`** — the companion report that will enumerate each unmapped
+  field with an explicit exclusion justification. **This report has not yet been created or reviewed at this
+  checkpoint**; its authoring, its review, and the final proof of exact set-equality between the matrix's 57
+  unmapped rows and the report's entries all remain **pending** for a later checkpoint. The 57 count here is
+  therefore the matrix-side provisional classification, not a completed cross-document reconciliation.
 
-**Sum-Assured magnitude discrepancy (disclosed, not silently reconciled).** The README plans table
-`[README.md:L62-L66]` shows **display** magnitudes (minimum sum assured 10,000,000; maximum 50 / 90 / 75
-**billion** by plan), whereas the raw COBOL `MOVE` literals in `NBUWB.cbl` `[QCBLLESRC/NBUWB.cbl:L149-L178]`
-are larger by roughly three orders of magnitude (minimum `10000000000000`; maximum `50000000000000` /
-`90000000000000` / `75000000000000`, i.e. the **trillion** range). Per the minimal-change constraint, the
-edition keeps the **COBOL literal authoritative** (it is the executable source of truth); the discrepancy is
-disclosed here rather than being silently normalized. Any downstream reconciliation is an explicit operator
-decision, not something this distillation invents.
+**Sum-Assured magnitude discrepancy (disclosed source ambiguity, not silently reconciled).** Two legacy
+sources give **different** sum-assured magnitudes, and they do not agree:
+
+- The raw COBOL `MOVE` literals in `NBUWB.cbl` `[QCBLLESRC/NBUWB.cbl:L149-L178]` are **14-integer-digit**
+  values: minimum `10000000000000` (all three plans); maximum `50000000000000` / `90000000000000` /
+  `75000000000000` by plan.
+- The README plans table `[README.md:L62-L66]` documents **smaller** magnitudes: minimum `10,000,000`; maximum
+  `50,000,000,000` / `90,000,000,000` / `75,000,000,000` by plan.
+
+The discrepancy factor is **not uniform**: the minimum differs by a factor of **10^6** (`10000000000000` vs
+`10000000`), while the maxima differ by a factor of **10^3** (e.g. `50000000000000` vs `50000000000`). A blanket
+"≈3 orders of magnitude" reading does **not** hold for the minimum.
+
+**Capacity constraint.** The APD `sumAssured` attribute is `Money(15,2)` — 13 integer digits, maximum
+`9,999,999,999,999.99` — which matches the copybook `PIC 9(13)V99` (`PM-MIN-SUM-ASSURED` / `PM-MAX-SUM-ASSURED`
+`[QCPYSRC/POLDATA.cpy:L42-L43]`, `PM-SUM-ASSURED` `[QCPYSRC/POLDATA.cpy:L76]`). The raw 14-integer-digit COBOL
+literals therefore **exceed** that capacity and are not representable in APD `Money(15,2)` (they would even
+high-order-truncate in the copybook's own `9(13)V99` fields). The README magnitudes fit within capacity.
+
+**Resolution (disclosed, not asserted resolved).** The current `editions/TermLife-BaseEdition.json` carries the
+**README-backed** magnitudes — minimum `10000000`; maximum `50000000000` / `90000000000` / `75000000000` —
+which are representable in `Money(15,2)`. The distillation does **not** embed the raw COBOL literals, and does
+**not** claim the two source sets are reconciled: this remains a documented source ambiguity between the
+executable COBOL literals and the README. Determining the intended true magnitude is an explicit downstream
+operator decision; this distillation neither edits the COBOL nor invents a value.
 
 **Dates.** LIFE400 is fully Y2K-remediated: all date fields are stored as 8-digit `YYYYMMDD` values
 `[README.md:L206-L209]` (e.g. `PM-ISSUE-DATE`, `PM-EFFECTIVE-DATE` `[QCPYSRC/POLDATA.cpy:L108-L115]`).
@@ -292,7 +347,7 @@ The assembled end state, with names kept byte-identical to `product/TermLife.jso
 ```mermaid
 graph TD
     P["Product: Term Life<br/>code TermLife · abbreviation TL"] --> L["Line: TermLifeLine"]
-    L --> FLD["14 line fields<br/>(policyId, planCode, contractStatus,<br/>issueChannel, billingMode, insuredName,<br/>gender, smokerStatus, uwClass, sumAssured, ...)"]
+    L --> FLD["14 line fields<br/>(planCode, contractStatus, issueChannel,<br/>billingMode, insuredName, dateOfBirth, issueAge,<br/>gender, smokerStatus, uwClass, occupationClass,<br/>highRiskAvocation, sumAssured, policyLoanBalance)"]
     L --> RO["Risk Object: InsuredLife"]
     L --> CC1["Clause Category: LifeCoverage"]
     L --> CC2["Clause Category: SupplementaryBenefits"]
@@ -310,17 +365,16 @@ graph TD
 | Product | `TermLife` (abbreviation `TL`) | 1 |
 | Line | `TermLifeLine` | 1 |
 | Risk object | `InsuredLife` | 1 |
-| Line fields | `policyId`, `planCode`, `contractStatus`, `issueChannel`, `billingMode`, insured attributes, `sumAssured`, … | 14 |
+| Line fields | `planCode`, `contractStatus`, `issueChannel`, `billingMode`, `insuredName`, `dateOfBirth`, `issueAge`, `gender`, `smokerStatus`, `uwClass`, `occupationClass`, `highRiskAvocation`, `sumAssured`, `policyLoanBalance` | 14 |
 | Clause categories | `LifeCoverage`, `SupplementaryBenefits` | 2 |
 | Coverage clauses | `termLifeDeathBenefit`, `ADB01`, `WOP01`, `CI001` | 4 |
-| Plan Option terms | `opt1` (T1001), `opt2` (T2001), `opt3` (T6501) | 3 |
+| Plan Option term `plan` (with 3 options) | `opt1` (T1001), `opt2` (T2001), `opt3` (T6501) | 1 term / 3 options |
 | TypeLists | `PlanCode`, `ContractStatus`, `IssueChannel`, `Gender`, `SmokerStatus`, `UWClass`, `BillingMode`, `RiderCode`, `RiderStatus`, `AmendmentType`, `AmendmentStatus`, `ClaimType`, `CauseOfDeath`, `ClaimPaymentMode`, `InvestigationStatus`, `ClaimDecision` | 16 |
 
 **Bottom line.** From the cited legacy evidence alone — one shared record copied by 7 of 8 programs, one master
 file keyed by `POLID`, and one parameter-only `EVALUATE` over the plan code — the correct distillation is a
-**single mono-line "Term Life" product**, with plan codes as **Option terms** and riders as **Coverage
-clauses**. Every judgment call (single-vs-multi product, `OCCURS`/`REDEFINES` handling, the LINCOLN/ACME
+**single mono-line "Term Life" product**, with the plan codes as the **options of a single `plan` Option term**
+and the riders as **Coverage clauses**. Every judgment call (single-vs-multi product, `OCCURS`/`REDEFINES` handling, the LINCOLN/ACME
 branding artifact, and the sum-assured magnitude discrepancy) is recorded above so the decision is fully
 auditable. The distillation preserves legacy behavior by construction: only structure is captured here; all
 computation stays in the untouched COBOL.
-
