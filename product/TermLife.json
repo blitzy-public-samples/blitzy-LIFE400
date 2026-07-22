@@ -1,0 +1,503 @@
+{
+  "code": "TermLife",
+  "name": "Term Life",
+  "abbreviation": "TL",
+  "lines": [
+    {
+      "code": "TermLifeLine",
+      "name": "Term Life Line",
+      "fields": [
+        {
+          "code": "planCode",
+          "name": "Plan Code",
+          "type": "TypeKey",
+          "typeList": "PlanCode"
+        },
+        {
+          "code": "contractStatus",
+          "name": "Contract Status",
+          "type": "TypeKey",
+          "typeList": "ContractStatus"
+        },
+        {
+          "code": "issueChannel",
+          "name": "Issue Channel",
+          "type": "TypeKey",
+          "typeList": "IssueChannel"
+        },
+        {
+          "code": "billingMode",
+          "name": "Billing Mode",
+          "type": "TypeKey",
+          "typeList": "BillingMode"
+        },
+        {
+          "code": "insuredName",
+          "name": "Insured Name",
+          "type": "String",
+          "length": 40
+        },
+        {
+          "code": "dateOfBirth",
+          "name": "Date of Birth",
+          "type": "Date"
+        },
+        {
+          "code": "issueAge",
+          "name": "Issue Age",
+          "type": "Integer"
+        },
+        {
+          "code": "gender",
+          "name": "Gender",
+          "type": "TypeKey",
+          "typeList": "Gender"
+        },
+        {
+          "code": "smokerStatus",
+          "name": "Smoker Status",
+          "type": "TypeKey",
+          "typeList": "SmokerStatus"
+        },
+        {
+          "code": "uwClass",
+          "name": "Underwriting Class",
+          "type": "TypeKey",
+          "typeList": "UWClass"
+        },
+        {
+          "code": "occupationClass",
+          "name": "Occupation Class",
+          "type": "Integer"
+        },
+        {
+          "code": "highRiskAvocation",
+          "name": "High Risk Avocation",
+          "type": "Boolean"
+        },
+        {
+          "code": "sumAssured",
+          "name": "Sum Assured",
+          "type": "Money",
+          "precision": 15,
+          "scale": 2
+        },
+        {
+          "code": "policyLoanBalance",
+          "name": "Policy Loan Balance",
+          "type": "Money",
+          "precision": 15,
+          "scale": 2
+        }
+      ],
+      "riskObjects": [
+        {
+          "code": "InsuredLife",
+          "name": "Insured Life",
+          "fields": []
+        }
+      ],
+      "clauseCategories": [
+        {
+          "code": "LifeCoverage",
+          "name": "Life Coverage"
+        },
+        {
+          "code": "SupplementaryBenefits",
+          "name": "Supplementary Benefits"
+        }
+      ],
+      "clauses": [
+        {
+          "code": "termLifeDeathBenefit",
+          "name": "Term Life Death Benefit",
+          "clauseType": "Coverage",
+          "categoryCode": "LifeCoverage",
+          "terms": [
+            {
+              "code": "plan",
+              "name": "Plan",
+              "termType": "Option",
+              "options": [
+                {
+                  "code": "opt1",
+                  "name": "T1001 - 10-Year Term",
+                  "value": 10
+                },
+                {
+                  "code": "opt2",
+                  "name": "T2001 - 20-Year Term",
+                  "value": 20
+                },
+                {
+                  "code": "opt3",
+                  "name": "T6501 - Term-to-65",
+                  "value": 65
+                }
+              ]
+            },
+            {
+              "code": "sumAssured",
+              "name": "Sum Assured",
+              "termType": "Money",
+              "precision": 15,
+              "scale": 2
+            }
+          ]
+        },
+        {
+          "code": "ADB01",
+          "name": "Accidental Death Benefit",
+          "clauseType": "Coverage",
+          "categoryCode": "SupplementaryBenefits",
+          "terms": [
+            {
+              "code": "riderSumAssured",
+              "name": "Rider Sum Assured",
+              "termType": "Money",
+              "precision": 15,
+              "scale": 2
+            }
+          ]
+        },
+        {
+          "code": "WOP01",
+          "name": "Waiver of Premium",
+          "clauseType": "Coverage",
+          "categoryCode": "SupplementaryBenefits",
+          "terms": []
+        },
+        {
+          "code": "CI001",
+          "name": "Critical Illness",
+          "clauseType": "Coverage",
+          "categoryCode": "SupplementaryBenefits",
+          "terms": [
+            {
+              "code": "riderSumAssured",
+              "name": "Rider Sum Assured",
+              "termType": "Money",
+              "precision": 15,
+              "scale": 2,
+              "maxValue": 500000
+            }
+          ]
+        }
+      ],
+      "typeLists": [
+        {
+          "code": "PlanCode",
+          "name": "Plan Code",
+          "typeKeys": [
+            {
+              "code": "T1001",
+              "name": "10-Year Term"
+            },
+            {
+              "code": "T2001",
+              "name": "20-Year Term"
+            },
+            {
+              "code": "T6501",
+              "name": "Term-to-65"
+            }
+          ]
+        },
+        {
+          "code": "ContractStatus",
+          "name": "Contract Status",
+          "typeKeys": [
+            {
+              "code": "PE",
+              "name": "Pending"
+            },
+            {
+              "code": "AC",
+              "name": "Active"
+            },
+            {
+              "code": "GR",
+              "name": "Grace"
+            },
+            {
+              "code": "LA",
+              "name": "Lapsed"
+            },
+            {
+              "code": "RS",
+              "name": "Reinstated"
+            },
+            {
+              "code": "CL",
+              "name": "Claimed"
+            },
+            {
+              "code": "TE",
+              "name": "Terminated"
+            },
+            {
+              "code": "RJ",
+              "name": "Declined"
+            }
+          ]
+        },
+        {
+          "code": "IssueChannel",
+          "name": "Issue Channel",
+          "typeKeys": [
+            {
+              "code": "BR",
+              "name": "Branch"
+            },
+            {
+              "code": "AG",
+              "name": "Agent"
+            },
+            {
+              "code": "ON",
+              "name": "Online"
+            }
+          ]
+        },
+        {
+          "code": "Gender",
+          "name": "Gender",
+          "typeKeys": [
+            {
+              "code": "F",
+              "name": "Female"
+            },
+            {
+              "code": "M",
+              "name": "Male"
+            }
+          ]
+        },
+        {
+          "code": "SmokerStatus",
+          "name": "Smoker Status",
+          "typeKeys": [
+            {
+              "code": "S",
+              "name": "Smoker"
+            },
+            {
+              "code": "N",
+              "name": "Non-Smoker"
+            }
+          ]
+        },
+        {
+          "code": "UWClass",
+          "name": "Underwriting Class",
+          "typeKeys": [
+            {
+              "code": "PR",
+              "name": "Preferred"
+            },
+            {
+              "code": "ST",
+              "name": "Standard"
+            },
+            {
+              "code": "TB",
+              "name": "Table-B"
+            },
+            {
+              "code": "DP",
+              "name": "Decline"
+            }
+          ]
+        },
+        {
+          "code": "BillingMode",
+          "name": "Billing Mode",
+          "typeKeys": [
+            {
+              "code": "A",
+              "name": "Annual"
+            },
+            {
+              "code": "S",
+              "name": "Semi-Annual"
+            },
+            {
+              "code": "Q",
+              "name": "Quarterly"
+            },
+            {
+              "code": "M",
+              "name": "Monthly"
+            }
+          ]
+        },
+        {
+          "code": "RiderCode",
+          "name": "Rider Code",
+          "typeKeys": [
+            {
+              "code": "ADB01",
+              "name": "Accidental Death Benefit"
+            },
+            {
+              "code": "WOP01",
+              "name": "Waiver of Premium"
+            },
+            {
+              "code": "CI001",
+              "name": "Critical Illness"
+            }
+          ]
+        },
+        {
+          "code": "RiderStatus",
+          "name": "Rider Status",
+          "typeKeys": [
+            {
+              "code": "A",
+              "name": "Active"
+            },
+            {
+              "code": "R",
+              "name": "Removed"
+            }
+          ]
+        },
+        {
+          "code": "AmendmentType",
+          "name": "Amendment Type",
+          "typeKeys": [
+            {
+              "code": "PL",
+              "name": "Plan Change"
+            },
+            {
+              "code": "SA",
+              "name": "Sum Assured"
+            },
+            {
+              "code": "BM",
+              "name": "Billing Mode"
+            },
+            {
+              "code": "AR",
+              "name": "Add Rider"
+            },
+            {
+              "code": "RR",
+              "name": "Remove Rider"
+            },
+            {
+              "code": "RI",
+              "name": "Reinstate"
+            }
+          ]
+        },
+        {
+          "code": "AmendmentStatus",
+          "name": "Amendment Status",
+          "typeKeys": [
+            {
+              "code": "PE",
+              "name": "Pending"
+            },
+            {
+              "code": "AP",
+              "name": "Approved"
+            },
+            {
+              "code": "RJ",
+              "name": "Rejected"
+            }
+          ]
+        },
+        {
+          "code": "ClaimType",
+          "name": "Claim Type",
+          "typeKeys": [
+            {
+              "code": "DT",
+              "name": "Death"
+            }
+          ]
+        },
+        {
+          "code": "CauseOfDeath",
+          "name": "Cause of Death",
+          "typeKeys": [
+            {
+              "code": "NAT",
+              "name": "Natural"
+            },
+            {
+              "code": "ACC",
+              "name": "Accident"
+            },
+            {
+              "code": "SUI",
+              "name": "Suicide"
+            },
+            {
+              "code": "HOM",
+              "name": "Homicide"
+            },
+            {
+              "code": "UNK",
+              "name": "Unknown"
+            }
+          ]
+        },
+        {
+          "code": "ClaimPaymentMode",
+          "name": "Claim Payment Mode",
+          "typeKeys": [
+            {
+              "code": "C",
+              "name": "Check"
+            },
+            {
+              "code": "A",
+              "name": "ACH"
+            }
+          ]
+        },
+        {
+          "code": "InvestigationStatus",
+          "name": "Investigation Status",
+          "typeKeys": [
+            {
+              "code": "N",
+              "name": "Not Required"
+            },
+            {
+              "code": "P",
+              "name": "Pending"
+            },
+            {
+              "code": "C",
+              "name": "Complete"
+            }
+          ]
+        },
+        {
+          "code": "ClaimDecision",
+          "name": "Claim Decision",
+          "typeKeys": [
+            {
+              "code": "A",
+              "name": "Approved"
+            },
+            {
+              "code": "R",
+              "name": "Rejected"
+            },
+            {
+              "code": "P",
+              "name": "Pending"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
