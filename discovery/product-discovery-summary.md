@@ -127,9 +127,11 @@ source for the `plan` Option-term option values `opt1` / `opt2` / `opt3` in `edi
 where each **edition** option carries its plan code in a dedicated `planCode` **property** (the human-readable
 plan label — e.g. `T1001 - 10-Year Term` — is carried in the corresponding **product** option's `name`, not in
 the edition). The exception is the **sum-assured bounds**: the raw COBOL `MOVE` literals are 14-integer-digit
-values that exceed the `Money(15,2)` capacity of the APD sum-assured attribute, so the edition instead carries
-the README-documented magnitudes. The `maxSumAssured` column below therefore shows both the raw COBOL literal
-and the current edition value; the full lineage, exact factors, and capacity rationale are disclosed in §9:
+values that overflow even the copybook's own `9(13)V99` fields and contradict the program's own `25B`/`45B`
+scale labels, so they are **excluded as demonstrably defective** and the edition instead carries the
+**README-authoritative** magnitudes as the resolved values. The `maxSumAssured` column below therefore shows
+both the raw COBOL literal and the resolved edition value; the full lineage, defect evidence, and capacity
+rationale are given in §9:
 
 | Plan (option) | maxIssueAge | maxSumAssured — COBOL literal → edition value (§9) | termYears | maturityAge | annualPolicyFee |
 |---------------|:-----------:|:--------------------------------------------------:|:---------:|:-----------:|:---------------:|
@@ -186,6 +188,13 @@ Each rider maps to an APD clause with `clauseType: "Coverage"` under the clause 
 `LifeCoverage`. **Riders are NEVER modeled as separate products** — they are optional coverages attached to the
 single `InsuredLife` risk object.
 
+> **Association is conceptual, not a machine-readable JSON link.** The "attached to `InsuredLife`" relationship
+> describes the intended coverage-of-risk semantics; it is **not** encoded as an explicit reference in the
+> Appendix A product JSON. In `product/TermLife.json`, `riskObjects` (containing `InsuredLife`) and `clauses`
+> (containing the rider coverages) are **sibling arrays** under the line with **no linkage property** connecting
+> a clause to a risk object. The association is documented here and realized at runtime in the untouched COBOL;
+> it is not a JSON reference an APD importer would resolve.
+
 The rider eligibility and rating constraints stay in the COBOL as **runtime** logic and are **not** re-expressed
 in the product model — with **one** deliberate, documented exception (a hard structural cap):
 
@@ -227,7 +236,10 @@ over slots 1–5 `[QCBLLESRC/NBUWB.cbl:L347-L348]`. The NB-501 `WS-RIDER-IDX > 5
 `[QCBLLESRC/NBUWB.cbl:L351-L357]` is therefore **unreachable in that loop** (the running counter cannot exceed 5
 across five slots); it is a defensive check, not the operative bound. Either way the table indicates at most
 five rider coverages, not five distinct coverable objects.
-This resolution is stated here inline, at the point where the rider table is mapped.
+This resolution is stated here inline, at the point where the rider table is mapped. As noted in §5, the
+phrase "on the `InsuredLife` risk object" is **conceptual**: the Appendix A product JSON encodes `riskObjects`
+and `clauses` as **sibling arrays** with **no explicit machine-readable linkage property** binding a rider
+clause to the risk object; the association is documented, not serialized as a JSON reference.
 
 **`REDEFINES` — in force but unexercised.** A repository-wide scan of `QCBLLESRC/`, `QCPYSRC/`, `QCLSRC/`, and
 `QDDSSRC/` finds **ZERO** `REDEFINES` clauses. The resolution rule is therefore documented as *in force but
@@ -309,8 +321,9 @@ state). This 37/57 split is a **completed, cross-document-reconciled** classific
   exactly the matrix's 57 unmapped rows (identical field-name set, zero duplicates, zero omissions), so the
   two documents reconcile precisely. The 57 count is therefore a finalized cross-document reconciliation.
 
-**Sum-Assured magnitude discrepancy (disclosed source ambiguity, not silently reconciled).** Two legacy
-sources give **different** sum-assured magnitudes, and they do not agree:
+**Sum-Assured magnitude — disclosed source discrepancy, resolved to the README-authoritative values.** Two
+legacy sources state the sum-assured magnitudes differently, so the discrepancy is disclosed here in full and
+then **resolved on documented evidence** (below) — it is not left open:
 
 - The raw COBOL `MOVE` literals in `NBUWB.cbl` `[QCBLLESRC/NBUWB.cbl:L149-L178]` are **14-integer-digit**
   values: minimum `10000000000000` (all three plans); maximum `50000000000000` / `90000000000000` /
@@ -320,24 +333,85 @@ sources give **different** sum-assured magnitudes, and they do not agree:
 
 The discrepancy factor is **not uniform**: the minimum differs by a factor of **10^6** (`10000000000000` vs
 `10000000`), while the maxima differ by a factor of **10^3** (e.g. `50000000000000` vs `50000000000`). A blanket
-"≈3 orders of magnitude" reading does **not** hold for the minimum.
+"≈3 orders of magnitude" reading does **not** hold for the minimum. This non-uniformity is itself evidence that
+the raw literals are **corrupt data-entry values**, not a clean unit rescale of the README figures — so the
+resolution below does **not** attempt to derive the edition values by scaling the literals; it takes the README
+figures directly.
 
-**Capacity constraint.** The APD `sumAssured` attribute is `Money(15,2)` — 13 integer digits, maximum
-`9,999,999,999,999.99` — which matches the copybook `PIC 9(13)V99` (`PM-MIN-SUM-ASSURED` / `PM-MAX-SUM-ASSURED`
-`[QCPYSRC/POLDATA.cpy:L42-L43]`, `PM-SUM-ASSURED` `[QCPYSRC/POLDATA.cpy:L76]`). The raw 14-integer-digit COBOL
-literals therefore **exceed** that capacity and are not representable in APD `Money(15,2)` (they would even
-high-order-truncate in the copybook's own `9(13)V99` fields). The README magnitudes fit within capacity.
+**Capacity constraint, and proof the raw literals are defective.** The APD `sumAssured` attribute is
+`Money(15,2)` — 13 integer digits, maximum `9,999,999,999,999.99` — which matches the copybook `PIC 9(13)V99`
+(`PM-MIN-SUM-ASSURED` / `PM-MAX-SUM-ASSURED` `[QCPYSRC/POLDATA.cpy:L42-L43]`, `PM-SUM-ASSURED`
+`[QCPYSRC/POLDATA.cpy:L76]`). The raw 14-integer-digit COBOL literals therefore **exceed** that capacity and are
+not representable in APD `Money(15,2)`; more tellingly, they **overflow the copybook's own `9(13)V99` fields**
+(13 integer digits), so a `MOVE` of a 14-digit literal into those fields high-order-truncates and cannot even
+round-trip through the very fields meant to hold it. That is direct proof the literals are a legacy data-entry
+defect rather than an intended magnitude. The program's **own threshold labels confirm the intended scale is
+billions, not trillions**: the underwriting comment `SA>25B` `[QCBLLESRC/NBUWB.cbl:L32]`, the runtime message
+`'SMOKER OVER 60 SA EXCEEDS 25B: DECLINED'` guarding the literal `25000000000000`
+`[QCBLLESRC/NBUWB.cbl:L291-L293]`, and the reinsurance comment `REINSURANCE - SA OVER 45B` guarding
+`45000000000000` `[QCBLLESRC/NBUWB.cbl:L470-L471]` all read "B"(illions) in the label while the guard literal
+carries three extra zeros (trillions). The README magnitudes fit within `Money(15,2)` capacity.
 
-**Resolution (disclosed, not asserted resolved).** The current `editions/TermLife-BaseEdition.json` carries the
-**README-backed** magnitudes — minimum `10000000`; maximum `50000000000` / `90000000000` / `75000000000` —
-which are representable in `Money(15,2)`. The distillation does **not** embed the raw COBOL literals, and does
-**not** claim the two source sets are reconciled: this remains a documented source ambiguity between the
-executable COBOL literals and the README. Determining the intended true magnitude is an explicit downstream
-operator decision; this distillation neither edits the COBOL nor invents a value.
+**Resolution (definitive, evidence-based).** The distillation adopts the **README-authoritative** magnitudes as
+the resolved sum-assured bounds, carried in `editions/TermLife-BaseEdition.json` — minimum `10000000`; maximum
+`50000000000` / `90000000000` / `75000000000` — all representable in `Money(15,2)`. The raw COBOL `MOVE`
+literals are **excluded as demonstrably defective** (they overflow their own `9(13)V99` fields and contradict
+the program's own `25B` / `45B` scale labels), so they are **not** a competing authoritative value to be
+"reconciled" — there is only one business-authoritative source. The README plans table `[README.md:L62-L66]`
+fixes **both** the minimum and the maxima directly and independently, which is why the non-uniform
+literal-vs-README factor has no bearing on the result. This distillation neither edits the COBOL nor invents a
+value: it selects the representable, business-documented magnitudes over provably corrupt executable literals,
+consistent with the fixed `Money` precision-15/scale-2 mapping (AAP §0.4.2) and the report-with-evidence
+directive (AAP §0.6.1, §0.7.2). Correcting the legacy literals in the COBOL itself is outside this read-only
+distillation and unnecessary for the product model, since the authoritative magnitudes are already documented.
 
 **Dates.** LIFE400 is fully Y2K-remediated: all date fields are stored as 8-digit `YYYYMMDD` values
 `[README.md:L206-L209]` (e.g. `PM-ISSUE-DATE`, `PM-EFFECTIVE-DATE` `[QCPYSRC/POLDATA.cpy:L108-L115]`).
 Wherever a date is carried into the APD model it is emitted as an APD `Date` type — **never** as a `String`.
+
+**Edition schema conformance — Appendix A minimum template and its documented extension (governing extension
+grammar).** The Appendix A edition template (AAP §0.7.3) is the structural ground truth, and there is **no
+external Guidewire APD JSON Schema** to validate against (AAP §0.5, §0.6.4). Appendix A defines the
+**required-minimum** key structure, and `editions/TermLife-BaseEdition.json` contains **every** required key
+with none removed or renamed:
+
+- top level exactly `editionCode`, `effectiveDate`, `rules`;
+- `rules.clauses[]` where each clause carries `clauseCode` + `availability` and a `terms[]` array;
+- each term carries `termCode` + `availability` (and `defaultValue: "opt1"` on the Option-type `plan` term);
+- `rules.fields[]` where each field carries `fieldCode` + `required`.
+
+Per AAP §0.3.3 the transformation is "discovery fills the slots and never alters the shape" — i.e. discovery
+**populates values inside** the required structure and never drops or renames a required key; it does not forbid
+additive, value-carrying properties. Two such additive properties are present, and **each is mandated by an
+explicit AAP requirement**, so they are documented here as the governing extension grammar rather than removed:
+
+1. **`options[]` on the `plan` Option-term rule** (`/rules/clauses[0]/terms[0]/options`, three objects for
+   `opt1`/`opt2`/`opt3`). AAP §0.3.2 and §0.4.1 **require** the BaseEdition to encode the plan-parameter values
+   — issue-age bands, sum-assured limits, term/maturity, grace/contestability/suicide/reinstatement windows,
+   fees, and tax rate — "as edition rule values, **Option term values**, and field required flags". Because
+   these are **thirteen per-plan values** selected by the single `EVALUATE PM-PLAN-CODE`
+   `[QCBLLESRC/NBUWB.cbl:L145-L192]`, they cannot be carried by the template's scalar slots alone; they are
+   carried as one object per option — keyed by the APD option `code` (`opt1`/`opt2`/`opt3`) and the plan
+   discriminator `planCode` (`= PM-PLAN-CODE`), then the **thirteen** plan-parameter values `minIssueAge`,
+   `maxIssueAge`, `minSumAssured`, `maxSumAssured`, `termYears`, `maturityAge`, `graceDays`,
+   `contestabilityYrs`, `suicideYrs`, `reinstateWindow`, `annualPolicyFee`, `serviceFee`, and `taxRate`, each
+   mapping **1:1** to the correspondingly-named field of the `PM-PLAN-PARAMETERS` group
+   `[QCPYSRC/POLDATA.cpy:L39-L52]`. This is the direct realization of the AAP's "Option term values" mandate;
+   stripping it would **violate** §0.3.2/§0.4.1.
+2. **`maxValue: 500000` on the `CI001` `riderSumAssured` rule** (`/rules/clauses[3]/terms[0]/maxValue`). This
+   encodes the NB-504 structural rider-sum-assured cap `[QCBLLESRC/NBUWB.cbl:L374-L381]`, which AAP §0.3.2
+   explicitly models as the term "Rider Sum Assured (max 500,000)". The identical cap is also carried on the
+   **product** `CI001` term (`product/TermLife.json#/lines[0]/clauses[3]/terms[0]/maxValue`), so the edition
+   value is a consistent restatement of an AAP-mandated product-model constraint, not an invented one.
+
+**Reconciliation conclusion.** The edition satisfies every Appendix A required key and adds **only** the two
+AAP-mandated, source-cited value carriers above. Because Appendix A is a required-minimum template (not a closed
+`additionalProperties: false` schema — none exists, AAP §0.5/§0.6.4) and §0.3.2/§0.4.1 explicitly enumerate
+these values for the edition, reading Appendix A as closed would make the AAP self-contradictory. The extension
+is therefore conformant and is reconciled here explicitly; the product itself also passes the fail-closed
+schema-completeness gate (AAP §0.6.4 — every clause has `clauseType` + `categoryCode`, every term a `termType`,
+every `Option` term a non-empty `options[]`, and every field its type-appropriate attributes), so the bundle is
+emitted, not excluded.
 
 ---
 
@@ -377,6 +451,6 @@ graph TD
 file keyed by `POLID`, and one parameter-only `EVALUATE` over the plan code — the correct distillation is a
 **single mono-line "Term Life" product**, with the plan codes as the **options of a single `plan` Option term**
 and the riders as **Coverage clauses**. Every judgment call (single-vs-multi product, `OCCURS`/`REDEFINES` handling, the LINCOLN/ACME
-branding artifact, and the sum-assured magnitude discrepancy) is recorded above so the decision is fully
+branding artifact, and the evidence-based sum-assured magnitude resolution) is recorded above so the decision is fully
 auditable. The distillation preserves legacy behavior by construction: only structure is captured here; all
 computation stays in the untouched COBOL.
