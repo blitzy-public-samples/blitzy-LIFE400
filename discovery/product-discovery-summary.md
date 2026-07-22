@@ -214,8 +214,12 @@ risk object:
   `ADB01` / `WOP01` / `CI001`);
 - the rider sum assured `PM-RIDER-SUM-ASSURED` `[QCPYSRC/POLDATA.cpy:L91]` becomes a **clause term**
   (`riderSumAssured`, present on the `ADB01` and `CI001` clauses). The rider **rate** `PM-RIDER-RATE`
-  `[QCPYSRC/POLDATA.cpy:L92]` is **not** a product term — it is runtime rating input and is classified
-  *Unmapped* (see the traceability matrix and §5), consistent with all other rider rating staying in COBOL.
+  `[QCPYSRC/POLDATA.cpy:L92]` is **not** a product term — it is an **unused / cleared legacy runtime slot**:
+  it is never read by premium calculation, and its only reference in the entire codebase clears it to zeros
+  (`MOVE ZEROS TO PM-RIDER-RATE` at `[QCBLLESRC/SVCBILB.cbl:L379]`). The rider rates premium calculation
+  actually applies are **hard-coded literals** in `1700-CALCULATE-RIDER-PREMIUM`
+  `[QCBLLESRC/NBUWB.cbl:L405-L431]` and do not flow through this field, so it is classified *Unmapped* (see
+  the traceability matrix and §5), consistent with all rider rating staying in COBOL.
 
 The five-element table simply bounds how many rider clauses may attach to one policy: the `OCCURS 5 TIMES`
 structure is the **effective cap**, because the validation loop in `1500-VALIDATE-RIDERS` varies the index only
@@ -296,16 +300,14 @@ computed exactly as before. Only the declarative product skeleton is lifted into
 complete field inventory: **94 distinct logical fields** total = **89 elementary fields** of
 `WS-POLICY-MASTER-REC` `[QCPYSRC/POLDATA.cpy:L14-L175]` + **5 standalone DDS fields** persisted only in the
 physical files. Of these, **37 are mapped** to the APD model and **57 are classified as unmapped** (runtime/transaction
-state). This 37/57 split is the **traceability-matrix-side** classification at this checkpoint:
+state). This 37/57 split is a **completed, cross-document-reconciled** classification:
 
 - **`discovery/traceability-matrix.md`** — the unified 100%-coverage table (every COBOL field/record → APD
-  JSON path, each field exactly once); the matrix independently proves 94 = 37 mapped + 57 provisionally
-  unmapped.
-- **`discovery/unmapped-fields-report.md`** — the companion report that will enumerate each unmapped
-  field with an explicit exclusion justification. **This report has not yet been created or reviewed at this
-  checkpoint**; its authoring, its review, and the final proof of exact set-equality between the matrix's 57
-  unmapped rows and the report's entries all remain **pending** for a later checkpoint. The 57 count here is
-  therefore the matrix-side provisional classification, not a completed cross-document reconciliation.
+  JSON path, each field exactly once); the matrix proves 94 = 37 mapped + 57 unmapped.
+- **`discovery/unmapped-fields-report.md`** — the companion report enumerates each of the 57 unmapped
+  fields with an explicit exclusion justification. Set-equality is verified: the report's 57 entries are
+  exactly the matrix's 57 unmapped rows (identical field-name set, zero duplicates, zero omissions), so the
+  two documents reconcile precisely. The 57 count is therefore a finalized cross-document reconciliation.
 
 **Sum-Assured magnitude discrepancy (disclosed source ambiguity, not silently reconciled).** Two legacy
 sources give **different** sum-assured magnitudes, and they do not agree:
