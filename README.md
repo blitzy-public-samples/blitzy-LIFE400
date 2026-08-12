@@ -1,7 +1,7 @@
 # LIFE400 — Term Life Policy System (AS/400 / IBM i)
 
-ACME Life Insurance Co. — Term Life Policy System | 
-Platform: IBM AS/400 (iSeries) | ILE COBOL + DDS + ILE CL | 
+ACME Life Insurance Co. — Term Life Policy System |
+Platform: IBM AS/400 (iSeries) | ILE COBOL + DDS + ILE CL |
 Original Build: March 24 2026 (mimics 1997–1998) | Library: `LIFE400`
 
 ---
@@ -23,7 +23,7 @@ Nightly batch: `DLYUPD` (scheduled via `ADDJOBSCDE`)
 
 ## Repository Structure
 
-```
+```text
 LIFE400/
 ├── QCPYSRC/          ILE COBOL copybooks
 │   └── POLDATA.cpy   Shared policy master record layout
@@ -39,14 +39,14 @@ LIFE400/
 │   ├── POLRPT.prtf   Policy listing printer file
 │   └── CLMRPT.prtf   Claims report printer file
 ├── QCBLLESRC/        ILE COBOL source members
-│   ├── NBUWB.cble    Batch: new business & underwriting
-│   ├── CLMADJB.cble  Batch: claims adjudication
-│   ├── SVCBILB.cble  Batch: servicing & billing
-│   ├── MAINMENU.cble Online: main menu
-│   ├── NBUWMNT.cble  Online: new business maintenance
-│   ├── CLMMNT.cble   Online: claims maintenance
-│   ├── SVCMNT.cble   Online: servicing maintenance
-│   └── POLMSTINQ.cble Online: policy master inquiry (read-only)
+│   ├── NBUWB.cbl     Batch: new business & underwriting
+│   ├── CLMADJB.cbl   Batch: claims adjudication
+│   ├── SVCBILB.cbl   Batch: servicing & billing
+│   ├── MAINMENU.cbl  Online: main menu
+│   ├── NBUWMNT.cbl   Online: new business maintenance
+│   ├── CLMMNT.cbl    Online: claims maintenance
+│   ├── SVCMNT.cbl    Online: servicing maintenance
+│   └── POLMSTINQ.cbl Online: policy master inquiry (read-only)
 └── QCLSRC/           ILE CL source members
     ├── STRTLIFE.clle  Start life system (interactive entry point)
     ├── RUNNBUW.clle   Submit NB batch job
@@ -67,11 +67,61 @@ LIFE400/
 
 ---
 
+## Modernization
+
+A modernization assessment for LIFE400 — current-state evidence, a target state, and a single recommended migration path — is maintained in this repository under `docs/modernization/`. It is evaluated against two business drivers:
+
+- **Minimize security risk.** The declared platform baseline is `ILE COBOL V3R7 · OS/400 V4R2 · IBM AS/400 Model 9406` [README.md:L264], and the application delegates access control entirely to the platform: the menu dispatch loop offers every signed-on user the identical option set, with no role or authority branching anywhere in it [QCBLLESRC/MAINMENU.cbl:L60-L92].
+- **Acquire engineering talent fluent in a modern mainstream language.** Maintaining LIFE400 requires ILE COBOL, DDS, and ILE CL together on one platform [README.md:L4], so the assessment names a target language and defends the choice rather than leaving it abstract.
+
+The assessment is **documentation only**: no ILE COBOL, ILE CL, copybook, or DDS member is modified by it. `QCBLLESRC/`, `QCPYSRC/`, `QCLSRC/`, and `QDDSSRC/` are read as evidence and left unchanged.
+
+Entry point: **[Modernization assessment](docs/modernization/README.md)**, which publishes both reading paths in full.
+
+| Reader | Start with | Then read |
+|--------|------------|-----------|
+| Decision-maker | [Executive recommendation](docs/modernization/00-executive-recommendation.md) — the recommended path, the named target stack, and the rejected alternatives | [Business drivers and success criteria](docs/modernization/01-business-drivers-and-success-criteria.md), then the `risk/` and `talent/` layers |
+| Engineer | [System inventory](docs/modernization/current-state/01-system-inventory.md) — the as-built member register — then the `current-state/` layer forward | `target-state/` for the destination, `migration/` for the route, and the [IBM i glossary](docs/modernization/reference/glossary-ibm-i.md) for platform terminology |
+
+---
+
+## Documentation
+
+Documentation lives under `docs/`. [`docs/README.md`](docs/README.md) is the landing page, and `docs/modernization/` holds the assessment in seven layers — `current-state/`, `risk/`, `talent/`, `target-state/`, `migration/`, `decisions/`, and `reference/`. The set **describes this system without modifying it**: every claim about LIFE400 carries an inline citation to the source member, DDS member, or build step that establishes it.
+
+Install the pinned documentation dependencies listed in `requirements-docs.txt`:
+
+```bash
+pip install -r requirements-docs.txt
+```
+
+Build the site. Navigation lives in `mkdocs.yml`, and `--strict` turns a missing navigation entry or a broken internal link into a build failure rather than a warning:
+
+```bash
+mkdocs build --strict
+```
+
+Lint the markdown against `.markdownlint-cli2.jsonc`:
+
+```bash
+npx --yes markdownlint-cli2@0.23.2 "**/*.md"
+```
+
+Check that every documentation link resolves, using `.mlc-config.json`:
+
+```bash
+find docs -name '*.md' -exec npx --yes markdown-link-check@3.15.0 --config .mlc-config.json {} \;
+```
+
+`mkdocs serve` previews the site locally. It is long-running and interactive, so it belongs in a terminal session and never in an automated step.
+
+---
+
 ## Building on a Real AS/400 / IBM i
 
 ### Step 1 — Create the Library and Source Physical Files
 
-```
+```text
 CRTLIB LIB(LIFE400) TYPE(*PROD) TEXT('ACME LIFE INS SYSTEM')
 
 CRTSRCPF FILE(LIFE400/QCPYSRC)   RCDLEN(92)  TEXT('COBOL COPYBOOKS')
@@ -86,7 +136,7 @@ Upload each file from this repo into the corresponding source physical file usin
 
 ### Step 3 — Create Database Files
 
-```
+```text
 CRTPF FILE(LIFE400/POLMST)   SRCFILE(LIFE400/QDDSSRC) SRCMBR(POLMST)   TEXT('POLICY MASTER')
 CRTPF FILE(LIFE400/CLMPF)    SRCFILE(LIFE400/QDDSSRC) SRCMBR(CLMPF)    TEXT('CLAIMS')
 CRTPF FILE(LIFE400/SVCPF)    SRCFILE(LIFE400/QDDSSRC) SRCMBR(SVCPF)    TEXT('SERVICE REQUESTS')
@@ -95,7 +145,7 @@ CRTLF FILE(LIFE400/POLMSTL1) SRCFILE(LIFE400/QDDSSRC) SRCMBR(POLMSTL1) TEXT('POL
 
 ### Step 4 — Create Display and Printer Files
 
-```
+```text
 CRTDSPF FILE(LIFE400/MNUDSPF)   SRCFILE(LIFE400/QDDSSRC) SRCMBR(MNUDSPF)
 CRTDSPF FILE(LIFE400/NBUWDSPF)  SRCFILE(LIFE400/QDDSSRC) SRCMBR(NBUWDSPF)
 CRTDSPF FILE(LIFE400/CLMDSPF)   SRCFILE(LIFE400/QDDSSRC) SRCMBR(CLMDSPF)
@@ -106,7 +156,7 @@ CRTPRTF FILE(LIFE400/CLMRPT)    SRCFILE(LIFE400/QDDSSRC) SRCMBR(CLMRPT)
 
 ### Step 5 — Compile ILE COBOL Programs
 
-```
+```text
 CRTCBLMOD MODULE(LIFE400/NBUWB)     SRCFILE(LIFE400/QCBLLESRC) SRCMBR(NBUWB)
 CRTCBLMOD MODULE(LIFE400/CLMADJB)   SRCFILE(LIFE400/QCBLLESRC) SRCMBR(CLMADJB)
 CRTCBLMOD MODULE(LIFE400/SVCBILB)   SRCFILE(LIFE400/QCBLLESRC) SRCMBR(SVCBILB)
@@ -128,7 +178,7 @@ CRTPGM PGM(LIFE400/POLMSTINQ) MODULE(LIFE400/POLMSTINQ)
 
 ### Step 6 — Compile ILE CL Programs
 
-```
+```text
 CRTCLMOD MODULE(LIFE400/STRTLIFE) SRCFILE(LIFE400/QCLSRC) SRCMBR(STRTLIFE)
 CRTCLMOD MODULE(LIFE400/RUNNBUW)  SRCFILE(LIFE400/QCLSRC) SRCMBR(RUNNBUW)
 CRTCLMOD MODULE(LIFE400/RUNCLM)   SRCFILE(LIFE400/QCLSRC) SRCMBR(RUNCLM)
@@ -144,7 +194,7 @@ CRTPGM PGM(LIFE400/DLYUPD)   MODULE(LIFE400/DLYUPD)
 
 ### Step 7 — Create Supporting Objects
 
-```
+```text
 /* JOB QUEUE AND JOB DESCRIPTION */
 CRTJOBD JOBD(LIFE400/LIFEJD) JOBQ(LIFE400/LIFEQ) TEXT('LIFE400 JOB DESC')
 CRTJOBQ JOBQ(LIFE400/LIFEQ) TEXT('LIFE400 JOB QUEUE')
@@ -163,7 +213,7 @@ ADDJOBSCDE JOB(DLYUPD) CMD(CALL LIFE400/DLYUPD) +
 
 ### Step 8 — Start the System
 
-```
+```text
 CALL LIFE400/STRTLIFE
 ```
 
