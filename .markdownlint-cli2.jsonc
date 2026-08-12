@@ -74,7 +74,21 @@
 
     // Defensive: the lint glob is "**/*.md", so any transient npm install would otherwise fill
     // the report with third-party markdown.
-    "node_modules/**"
+    "node_modules/**",
+
+    // Defensive, same reasoning, for the Python side. This host's system Python carries a
+    // PEP 668 externally-managed marker, so `pip install -r requirements-docs.txt` - the
+    // command README.md documents immediately above the lint command - can only be run from a
+    // virtual environment. A repository-root environment installs mkdocs and mkdocs-material,
+    // whose distributions ship 9 markdown files of their own; without these entries the
+    // documented lint command reports MD040 and MD041 findings against third-party licence
+    // text and the gate stops being usable. Measured with mkdocs 1.6.1 and mkdocs-material
+    // 9.7.7 installed from requirements-docs.txt. The site-packages pattern is the catch-all,
+    // so an environment under any directory name is covered; the two conventional names are
+    // listed as well so the intent is readable without knowing the layout.
+    "**/site-packages/**",
+    ".venv/**",
+    "venv/**"
   ]
 
   // Deliberately absent:
