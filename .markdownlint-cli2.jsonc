@@ -1,0 +1,89 @@
+// .markdownlint-cli2.jsonc - markdown lint configuration for the LIFE400 documentation set.
+//
+// One of four mechanical integrity gates over docs/modernization/**: this file checks markdown
+// structure, mkdocs.yml checks navigation completeness and internal links through
+// `mkdocs build --strict`, .mlc-config.json checks link resolution, and a citation-resolution
+// check confirms every [<path>:<locator>] reference points at a real path and line range.
+// Structure is enforced by a build rather than asserted in review.
+//
+// Run with:  npx --yes markdownlint-cli2@0.23.2 "**/*.md"
+//
+// The tool version is pinned on the command line rather than in a manifest. LIFE400 is an
+// ILE COBOL, ILE CL and DDS estate whose platform baseline is
+// ILE COBOL V3R7 · OS/400 V4R2 · IBM AS/400 Model 9406 [README.md:L214]; a package.json would
+// misrepresent that to every reader and tool inspecting the repository. Nothing configured here
+// needs an npm install - no custom rules, no markdown-it plugins, no extra module paths.
+//
+// Every rule turned off below is justified by a finding measured against this repository's own
+// hand-authored markdown using markdownlint-cli2 v0.23.2 (markdownlint v0.41.1). No rule is
+// disabled speculatively: a rule turned off "just in case" would defeat the gate.
+{
+  // Schema URI for editor validation only. It names the same tool version used on the command
+  // line, so an editor and the gate agree on which keys and rules are valid.
+  "$schema": "https://raw.githubusercontent.com/DavidAnson/markdownlint-cli2/v0.23.2/schema/markdownlint-cli2-config-schema.json",
+
+  "config": {
+    // Every rule not named below keeps its default state. Two rules are then disabled with
+    // measured cause, and two are restated explicitly because the documentation set relies on
+    // them being active.
+    "default": true,
+
+    // MD013/line-length - DISABLED. Every claim about the legacy system carries an inline
+    // [<path>:<locator>] citation immediately after the claim, so lines legitimately exceed the
+    // 80-character default. Measured on README.md: 8 findings, the longest line 436 characters
+    // [README.md:L198]. Raising the limit instead of disabling it would still be an arbitrary
+    // number and would still fail that line.
+    "MD013": false,
+
+    // MD060/table-column-style - DISABLED. The repository's existing tables use a compact pipe
+    // style with no padding inside the delimiter row [README.md:L175], and the new documents
+    // follow it so field inventories, column mappings and risk registers read consistently.
+    // Measured on README.md: 24 findings across the three tables' delimiter rows
+    // [README.md:L14], [README.md:L63], [README.md:L175]. In this tool version the rule that
+    // reports compact table pipes is MD060; MD055/table-pipe-style and MD056/table-column-count
+    // stay at their defaults because neither fires here.
+    "MD060": false,
+
+    // MD040/fenced-code-language - ENFORCED. Restated rather than left implicit because the
+    // documentation set depends on it: every fenced block names its language, `mermaid` for each
+    // diagram under docs/modernization/**, and `text`, `bash` or a CL identifier for layout and
+    // command blocks. This rule is why README.md's eight unlabelled fences are corrected
+    // [README.md:L26], [README.md:L74], [README.md:L89], [README.md:L98], [README.md:L109],
+    // [README.md:L131], [README.md:L147], [README.md:L166].
+    "MD040": true,
+
+    // MD041/first-line-heading - ENFORCED, restated for the same reason. Every document opens
+    // with a single top-level heading, so a reader entering the set at any file sees that file's
+    // subject on its first line.
+    "MD041": true
+  },
+
+  // Paths excluded from linting. docs/** and README.md are deliberately absent from this list:
+  // they are exactly what the gate exists to check.
+  "ignores": [
+    // Machine-generated Swimm corpus, consumed strictly as read-only reference. Its front
+    // matter, <SwmPath> and <SwmToken> tags, repeated top-level headings and generated long
+    // table rows are tool-emitted and cannot be hand-authored correctly. One 291-line
+    // walkthrough alone reports 75 findings, most of them from rules this configuration keeps
+    // enabled, so excluding the corpus both keeps the report readable and removes any temptation
+    // to hand-correct a generator artifact.
+    ".swm/**",
+
+    // Output of `mkdocs build`. A local artifact, never linted and never committed.
+    "site/**",
+
+    // Defensive: the lint glob is "**/*.md", so any transient npm install would otherwise fill
+    // the report with third-party markdown.
+    "node_modules/**"
+  ]
+
+  // Deliberately absent:
+  //   "fix"    - the gate reports, it never silently rewrites. A tool that edits files is
+  //              incompatible with the guarantee that no COBOL, CL, copybook, DDS or Swimm
+  //              member is modified by this documentation work.
+  //   "globs"  - the file list comes from the command line. QCBLLESRC/, QCLSRC/, QCPYSRC/ and
+  //              QDDSSRC/ hold ILE COBOL, ILE CL, copybook and DDS members, contain no markdown,
+  //              and are out of scope entirely.
+  //   link validation - owned by .mlc-config.json and by `mkdocs build --strict`, not by this
+  //              file.
+}
