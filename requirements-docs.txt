@@ -1,21 +1,15 @@
-# requirements-docs.txt - pinned Python dependencies for the LIFE400 documentation build.
+# Pinned Python dependencies for the LIFE400 modernization documentation build.
+# Documentation tooling only: this file declares no runtime dependency of LIFE400, whose platform
+# baseline remains ILE COBOL V3R7 · OS/400 V4R2 · IBM AS/400 Model 9406 [README.md:L264] and is
+# unchanged by this work.
 #
-# Documentation tooling only, and the repository's only dependency manifest. It adds no
-# runtime dependency to LIFE400 itself: the system's platform baseline remains
-# ILE COBOL V3R7 · OS/400 V4R2 · IBM AS/400 Model 9406 [README.md:L214], unchanged by the
-# modernization documentation set under docs/.
+# Install with: python3 -m venv .venv && . .venv/bin/activate && pip install -r requirements-docs.txt
+# A virtual environment is required rather than advisable: this host's system Python carries a
+# PEP 668 externally-managed marker, so installing against the system interpreter fails with
+# "error: externally-managed-environment". This is the sequence README.md documents [README.md:L97].
 #
-# Install with:  pip install -r requirements-docs.txt
-# Then build:    mkdocs build --strict
-#
-# Versions are pinned exactly, never as ranges. mkdocs-material 9.7.7 emits a
-# forward-compatibility advisory that the next major MkDocs release changes the plugin and
-# theming systems incompatibly with no migration path, so an exact pin keeps a build that
-# succeeds today succeeding identically later.
-#
-# Two entries are sufficient and deliberate: Mermaid diagrams render through the
-# pymdownx.superfences custom fence declared in mkdocs.yml, and pymdown-extensions arrives
-# transitively with mkdocs-material, so no diagram plugin belongs here.
+# Both versions are pinned exactly rather than as ranges, because mkdocs-material 9.7.7 warns that
+# the next major MkDocs release changes the plugin and theming systems with no migration path.
 
 mkdocs==1.6.1
 mkdocs-material==9.7.7

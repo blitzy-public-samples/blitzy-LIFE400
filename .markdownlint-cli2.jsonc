@@ -1,16 +1,18 @@
 // .markdownlint-cli2.jsonc - markdown lint configuration for the LIFE400 documentation set.
 //
-// One of four mechanical integrity gates over docs/modernization/**: this file checks markdown
-// structure, mkdocs.yml checks navigation completeness and internal links through
-// `mkdocs build --strict`, .mlc-config.json checks link resolution, and a citation-resolution
-// check confirms every [<path>:<locator>] reference points at a real path and line range.
-// Structure is enforced by a build rather than asserted in review.
+// One of four mechanical integrity gates over docs/modernization/**. Three of the four operate
+// today: this file checks markdown structure, .mlc-config.json checks link resolution, and a
+// citation-resolution check confirms every [<path>:<locator>] reference points at a real path
+// and line range. The fourth is planned rather than present - a root mkdocs.yml will check
+// navigation completeness and internal links through `mkdocs build --strict` - and that file is
+// not part of this checkpoint, so nothing below depends on it or on a site build existing.
+// Structure is enforced by a gate that runs rather than asserted in review.
 //
 // Run with:  npx --yes markdownlint-cli2@0.23.2 "**/*.md"
 //
 // The tool version is pinned on the command line rather than in a manifest. LIFE400 is an
 // ILE COBOL, ILE CL and DDS estate whose platform baseline is
-// ILE COBOL V3R7 · OS/400 V4R2 · IBM AS/400 Model 9406 [README.md:L214]; a package.json would
+// ILE COBOL V3R7 · OS/400 V4R2 · IBM AS/400 Model 9406 [README.md:L264]; a package.json would
 // misrepresent that to every reader and tool inspecting the repository. Nothing configured here
 // needs an npm install - no custom rules, no markdown-it plugins, no extra module paths.
 //
@@ -23,33 +25,72 @@
   "$schema": "https://raw.githubusercontent.com/DavidAnson/markdownlint-cli2/v0.23.2/schema/markdownlint-cli2-config-schema.json",
 
   "config": {
-    // Every rule not named below keeps its default state. Two rules are then disabled with
-    // measured cause, and two are restated explicitly because the documentation set relies on
-    // them being active.
+    // Every rule not named below keeps its default state. Three rules are disabled, each with a
+    // measured cause recorded beside it, and two more are restated explicitly because the
+    // documentation set relies on them being active. No rule is disabled speculatively.
     "default": true,
+
+    // MD009/no-trailing-spaces - DISABLED, and the narrowest of the three exceptions in both
+    // what it covers and why. It exists for exactly two bytes, neither of them authored here.
+    // README.md's header block inherits a single trailing space on two lines
+    // [README.md:L3], [README.md:L4], present in the file before this documentation work began.
+    // The README update is confined to adding the Modernization and Documentation sections,
+    // correcting eight superseded `.cble` filenames, and labelling eight unlabelled fences;
+    // rewriting an unrelated byte of the entry-point document is outside that scope, and the
+    // platform footer, product table, screen reference, build steps, business-rule summary and
+    // Y2K notes are cited as authoritative by the new documents and must not shift underneath
+    // those citations. So the bytes stay and the rule yields.
+    //
+    // Disabling is the only mechanism available, which was established by measurement rather
+    // than assumed. MD009 exempts a line ending in exactly `br_spaces` spaces so it can serve as
+    // a hard line break, but the exemption requires br_spaces >= 2: at the default of 2 the rule
+    // reports "Expected: 0 or 2; Actual: 1", and at 1 or 0 it reports "Expected: 0; Actual: 1",
+    // which is stricter still. No value of br_spaces admits a single trailing space. Per-file
+    // scoping is not available either - markdownlint-cli2 resolves rule configuration from the
+    // nearest configuration file, so exempting one file would mean adding a second
+    // configuration file or embedding markdownlint-disable comments in README.md, and both are
+    // themselves edits this work is not authorised to make.
+    //
+    // Measured on the repository's nine hand-authored markdown files: 2 findings, both in
+    // README.md, both a single trailing space, and no others anywhere. The scope of what is
+    // given up is therefore two known bytes rather than a class of defect - and every other
+    // whitespace rule stays active to cover the rest, MD010/hard-tabs, MD012/no-multiple-blanks,
+    // MD027/no-multiple-space-blockquote, MD030/list-marker-space, MD023/heading-start-left and
+    // MD039/no-space-in-links among them.
+    "MD009": false,
 
     // MD013/line-length - DISABLED. Every claim about the legacy system carries an inline
     // [<path>:<locator>] citation immediately after the claim, so lines legitimately exceed the
-    // 80-character default. Measured on README.md: 8 findings, the longest line 436 characters
-    // [README.md:L198]. Raising the limit instead of disabling it would still be an arbitrary
-    // number and would still fail that line.
+    // 80-character default - the two business-driver bullets of the entry-point document run to
+    // 369 and 267 characters for that reason [README.md:L74], [README.md:L75]. Measured on
+    // README.md: 19 findings, the longest line 459 characters [README.md:L100].
+    // Raising the limit instead of disabling it would still be an arbitrary number and would
+    // still fail that line.
     "MD013": false,
 
     // MD060/table-column-style - DISABLED. The repository's existing tables use a compact pipe
-    // style with no padding inside the delimiter row [README.md:L175], and the new documents
+    // style with no padding inside the delimiter row [README.md:L225], and the new documents
     // follow it so field inventories, column mappings and risk registers read consistently.
-    // Measured on README.md: 24 findings across the three tables' delimiter rows
-    // [README.md:L14], [README.md:L63], [README.md:L175]. In this tool version the rule that
-    // reports compact table pipes is MD060; MD055/table-pipe-style and MD056/table-column-count
-    // stay at their defaults because neither fires here.
+    // Measured on README.md: 30 findings across its four tables, whose delimiter rows are
+    // [README.md:L14], [README.md:L63], [README.md:L82] and [README.md:L225]. Twenty-four of the
+    // findings are reported against the delimiter row, for three of the four tables; the remaining
+    // six are the body rows of the reading-paths table added to the Modernization section
+    // [README.md:L83], [README.md:L84], because that is where the padding differs. Measured across
+    // docs/**: 460 findings, so the rule is load-bearing for the authored set and not only
+    // for the pre-existing overview. In this tool version the rule that reports compact table
+    // pipes is MD060; MD055/table-pipe-style and
+    // MD056/table-column-count stay at their defaults because neither fires here.
     "MD060": false,
 
     // MD040/fenced-code-language - ENFORCED. Restated rather than left implicit because the
     // documentation set depends on it: every fenced block names its language, `mermaid` for each
-    // diagram under docs/modernization/**, and `text`, `bash` or a CL identifier for layout and
-    // command blocks. This rule is why README.md's eight unlabelled fences are corrected
-    // [README.md:L26], [README.md:L74], [README.md:L89], [README.md:L98], [README.md:L109],
-    // [README.md:L131], [README.md:L147], [README.md:L166].
+    // diagram under docs/modernization/**, and `text` or `bash` for layout and command blocks.
+    // This rule is why README.md's eight formerly unlabelled fences now name theirs: they carry
+    // `text` and sit at [README.md:L26], [README.md:L124], [README.md:L139], [README.md:L148],
+    // [README.md:L159], [README.md:L181], [README.md:L197] and [README.md:L216]. The four `bash`
+    // fences added with the Documentation section [README.md:L96], [README.md:L102],
+    // [README.md:L108], [README.md:L114] were labelled when written, so all twelve opening fences
+    // in the file name a language. Measured on README.md after that correction: 0 findings.
     "MD040": true,
 
     // MD041/first-line-heading - ENFORCED, restated for the same reason. Every document opens
@@ -69,7 +110,8 @@
     // to hand-correct a generator artifact.
     ".swm/**",
 
-    // Output of `mkdocs build`. A local artifact, never linted and never committed.
+    // Output of `mkdocs build`, once the planned root mkdocs.yml makes a site build possible. A
+    // local artifact, never linted and never committed.
     "site/**",
 
     // Defensive: the lint glob is "**/*.md", so any transient npm install would otherwise fill
@@ -77,9 +119,9 @@
     "node_modules/**",
 
     // Defensive, same reasoning, for the Python side. This host's system Python carries a
-    // PEP 668 externally-managed marker, so `pip install -r requirements-docs.txt` - the
-    // command README.md documents immediately above the lint command - can only be run from a
-    // virtual environment. A repository-root environment installs mkdocs and mkdocs-material,
+    // PEP 668 externally-managed marker, which is why the install command README.md documents
+    // above the lint command [README.md:L97] creates and activates a virtual environment before
+    // installing. A repository-root environment installs mkdocs and mkdocs-material,
     // whose distributions ship 9 markdown files of their own; without these entries the
     // documented lint command reports MD040 and MD041 findings against third-party licence
     // text and the gate stops being usable. Measured with mkdocs 1.6.1 and mkdocs-material
@@ -98,6 +140,7 @@
   //   "globs"  - the file list comes from the command line. QCBLLESRC/, QCLSRC/, QCPYSRC/ and
   //              QDDSSRC/ hold ILE COBOL, ILE CL, copybook and DDS members, contain no markdown,
   //              and are out of scope entirely.
-  //   link validation - owned by .mlc-config.json and by `mkdocs build --strict`, not by this
-  //              file.
+  //   link validation - owned by .mlc-config.json today, and additionally by
+  //              `mkdocs build --strict` once the planned root mkdocs.yml is added. Never by
+  //              this file.
 }

@@ -13,7 +13,7 @@ Nothing below is carried over from prior description. Each figure was taken from
 - **Identity, version, authorship and change notes** come from the fixed comment banner at the head of every member. The banner is a house convention applied consistently across all three languages, with one difference worth knowing before reading a citation: [ILE](../reference/glossary-ibm-i.md#ile-integrated-language-environment) COBOL and copybook banners put the author on the fourth line, the creation date on the fifth and the version on the sixth [QCBLLESRC/NBUWMNT.cbl:L1-L20], [QCPYSRC/POLDATA.cpy:L1-L13]; [ILE CL](../reference/glossary-ibm-i.md#cl-control-language) banners use the same offsets inside CL comment delimiters [QCLSRC/DLYUPD.clle:L1-L23]; and [DDS](../reference/glossary-ibm-i.md#dds-data-description-specifications) banners carry an extra `TYPE:` line, which shifts author, date and version down to the fifth, sixth and seventh lines [QDDSSRC/POLMST.pf:L1-L13].
 - **Change notes** are transcribed, never inferred. A member whose banner records no change is recorded here as having none rather than being given a plausible one, and the four members in that position are named explicitly below.
 - **Line counts** are whole-file counts, including banner and comment lines, because the banner is part of the member a maintainer opens and reads. Every one of the 24 members ends with a newline, so no count is ambiguous by one line. The count is independently checkable from a citation: the menu program's register row states 95 lines, and the range citation [QCBLLESRC/MAINMENU.cbl:L1-L95] resolves only against a file that is at least that long.
-- **Member set.** The estate is 24 source members in four directories that stand in for the platform's four source physical files [README.md:L127-L130]. The repository's own structure diagram enumerates the same 24 — one copybook [README.md:L29], ten DDS members [README.md:L31-L40], eight ILE COBOL members [README.md:L42-L49] and five ILE CL members [README.md:L51-L55] — so the register and the entry-point document agree on the member set, not merely on its size.
+- **Member set.** The estate is 24 source members in four directories that stand in for the platform's four [source physical files](../reference/glossary-ibm-i.md#source-physical-file-and-source-member) [README.md:L127-L130]. The repository's own structure diagram enumerates the same 24 — one copybook [README.md:L29], ten DDS members [README.md:L31-L40], eight ILE COBOL members [README.md:L42-L49] and five ILE CL members [README.md:L51-L55] — so the register and the entry-point document agree on the member set, not merely on its size.
 - **No generated inventory was consulted.** The machine-generated corpus under `.swm/` is treated as prior art and read only where it is cited as such; it is never edited, and none of the figures in this register is taken from it.
 
 ## Member register
@@ -82,7 +82,7 @@ Five observations follow from the register itself, each measurable from the rows
 
 - **Three authors of record, unevenly distributed.** Counted across the register above, R. KOWALSKI is named on 17 of the 24 members, D. BRENNAN on 6 and T. WALSH on 1 [QCBLLESRC/POLMSTINQ.cbl:L4]. The six D. BRENNAN members are exactly the claims domain end to end — batch program, online program, submitter, physical file, display file and printer file [QCBLLESRC/CLMADJB.cbl:L4], [QCBLLESRC/CLMMNT.cbl:L4], [QCLSRC/RUNCLM.clle:L4], [QDDSSRC/CLMPF.pf:L5], [QDDSSRC/CLMDSPF.dspf:L5], [QDDSSRC/CLMRPT.prtf:L5]. What that concentration implies for hiring and knowledge transfer is assessed in [the skills inventory and gap analysis](../talent/01-skills-inventory-and-gap.md); the register only establishes that it is so.
 - **No member ever reached a second major version.** The declared versions are 1.0 on five members, 1.1 on seven, 1.2 on eight, 1.3 on two and 1.4 on two, and the highest anywhere in the estate is 1.4 [QCBLLESRC/NBUWMNT.cbl:L6], [QCPYSRC/POLDATA.cpy:L6].
-- **Members arrive in domain cohorts on a single date.** Seven members share the creation date 1997-09-12 — the menu program, the session entry program, the shared contract, the policy master, its access path, the menu screen and the policy listing report [QCBLLESRC/MAINMENU.cbl:L5], [QCLSRC/STRTLIFE.clle:L5], [QCPYSRC/POLDATA.cpy:L5], [QDDSSRC/POLMST.pf:L6], [QDDSSRC/POLMSTL1.lf:L6], [QDDSSRC/MNUDSPF.dspf:L6], [QDDSSRC/POLRPT.prtf:L6]. The same pattern repeats per domain: new business on 1997-09-15 across four members [QCBLLESRC/NBUWB.cbl:L5], [QCBLLESRC/NBUWMNT.cbl:L5], [QCLSRC/RUNNBUW.clle:L5], [QDDSSRC/NBUWDSPF.dspf:L6]; claims across 1997-11-02 [QCBLLESRC/CLMADJB.cbl:L5], [QDDSSRC/CLMPF.pf:L6], [QDDSSRC/CLMRPT.prtf:L6] and 1997-11-10 [QCBLLESRC/CLMMNT.cbl:L5], [QCLSRC/RUNCLM.clle:L5], [QDDSSRC/CLMDSPF.dspf:L6]; and servicing across 1998-03-05 [QCBLLESRC/SVCBILB.cbl:L5], [QDDSSRC/SVCPF.pf:L6] and 1998-03-10 [QCBLLESRC/SVCMNT.cbl:L5], [QCLSRC/RUNSVC.clle:L5], [QDDSSRC/SVCDSPF.dspf:L6].
+- **Members arrive in domain cohorts, each over one or two dates.** Seven members share the creation date 1997-09-12 — the menu program, the session entry program, the shared contract, the policy master, its access path, the menu screen and the policy listing report [QCBLLESRC/MAINMENU.cbl:L5], [QCLSRC/STRTLIFE.clle:L5], [QCPYSRC/POLDATA.cpy:L5], [QDDSSRC/POLMST.pf:L6], [QDDSSRC/POLMSTL1.lf:L6], [QDDSSRC/MNUDSPF.dspf:L6], [QDDSSRC/POLRPT.prtf:L6]. The same pattern repeats per domain: new business on 1997-09-15 across four members [QCBLLESRC/NBUWB.cbl:L5], [QCBLLESRC/NBUWMNT.cbl:L5], [QCLSRC/RUNNBUW.clle:L5], [QDDSSRC/NBUWDSPF.dspf:L6]; claims across 1997-11-02 [QCBLLESRC/CLMADJB.cbl:L5], [QDDSSRC/CLMPF.pf:L6], [QDDSSRC/CLMRPT.prtf:L6] and 1997-11-10 [QCBLLESRC/CLMMNT.cbl:L5], [QCLSRC/RUNCLM.clle:L5], [QDDSSRC/CLMDSPF.dspf:L6]; and servicing across 1998-03-05 [QCBLLESRC/SVCBILB.cbl:L5], [QDDSSRC/SVCPF.pf:L6] and 1998-03-10 [QCBLLESRC/SVCMNT.cbl:L5], [QCLSRC/RUNSVC.clle:L5], [QDDSSRC/SVCDSPF.dspf:L6].
 - **The newest member of the estate is the nightly job.** `QCLSRC/DLYUPD.clle` declares the latest creation date of any member, 1998-03-20 [QCLSRC/DLYUPD.clle:L5]; no member declares a creation date after it.
 - **The read-only inquiry program is the estate's one outlier on every axis of the register.** `QCBLLESRC/POLMSTINQ.cbl` is the only member attributed to a third author, the only COBOL program still at version 1.0, and the only COBOL program whose banner declares input-only access to the policy master rather than update access [QCBLLESRC/POLMSTINQ.cbl:L4-L6], [QCBLLESRC/POLMSTINQ.cbl:L18].
 
@@ -135,15 +135,15 @@ Four facts about that history matter to anyone planning work against these membe
 
 ## Language distribution
 
-LIFE400 is 4,126 lines of source across 24 members in three languages plus one shared copybook.
+LIFE400 is 4,126 lines of source across 24 members in three languages plus one shared copybook — the complete member set the repository's own structure diagram enumerates [README.md:L27-L55]. Each row below is the sum of the whole-file line counts of the members it cites, and those addends are shown in full beneath the table.
 
-| Language | Members | Lines | Share of estate |
-|----------|---------|-------|-----------------|
-| ILE COBOL | 8 | 2,827 | 68.5% |
-| ILE CL | 5 | 336 | 8.1% |
-| COBOL copybook | 1 | 175 | 4.2% |
-| DDS | 10 | 788 | 19.1% |
-| **Total** | **24** | **4,126** | **100.0%** |
+| Language | Members | Lines | Share of estate | Members measured |
+|----------|---------|-------|-----------------|------------------|
+| ILE COBOL | 8 | 2,827 | 68.5% | [QCBLLESRC/CLMADJB.cbl:L1-L314], [QCBLLESRC/CLMMNT.cbl:L1-L291], [QCBLLESRC/MAINMENU.cbl:L1-L95], [QCBLLESRC/NBUWB.cbl:L1-L507], [QCBLLESRC/NBUWMNT.cbl:L1-L498], [QCBLLESRC/POLMSTINQ.cbl:L1-L131], [QCBLLESRC/SVCBILB.cbl:L1-L543], [QCBLLESRC/SVCMNT.cbl:L1-L448] |
+| ILE CL | 5 | 336 | 8.1% | [QCLSRC/DLYUPD.clle:L1-L105], [QCLSRC/RUNCLM.clle:L1-L65], [QCLSRC/RUNNBUW.clle:L1-L58], [QCLSRC/RUNSVC.clle:L1-L65], [QCLSRC/STRTLIFE.clle:L1-L43] |
+| COBOL copybook | 1 | 175 | 4.2% | [QCPYSRC/POLDATA.cpy:L1-L175] |
+| DDS | 10 | 788 | 19.1% | [QDDSSRC/CLMDSPF.dspf:L1-L115], [QDDSSRC/CLMPF.pf:L1-L67], [QDDSSRC/CLMRPT.prtf:L1-L60], [QDDSSRC/MNUDSPF.dspf:L1-L55], [QDDSSRC/NBUWDSPF.dspf:L1-L147], [QDDSSRC/POLMST.pf:L1-L81], [QDDSSRC/POLMSTL1.lf:L1-L14], [QDDSSRC/POLRPT.prtf:L1-L66], [QDDSSRC/SVCDSPF.dspf:L1-L129], [QDDSSRC/SVCPF.pf:L1-L54] |
+| **Total** | **24** | **4,126** | **100.0%** | the four rows above, summed |
 
 The subtotals are stated with their addends so the total can be re-derived rather than taken on trust. Every addend is the whole-file line count of the member named in the register above.
 
@@ -156,14 +156,14 @@ DDS         115 + 67 + 60 + 55 + 147 + 81 + 14 + 66 + 129 + 54  =   788
 Estate total                                                    = 4,126
 ```
 
-DDS is a single fixed-format language serving four distinct purposes in this estate, so its ten members are broken out by kind. The four data members define what is stored; the six device members define what is shown and printed.
+DDS is a single fixed-format language serving four distinct purposes in this estate, so its ten members are broken out by kind. The four data members define what is stored — a record format over a physical file [QDDSSRC/POLMST.pf:L14] or over another file [QDDSSRC/POLMSTL1.lf:L13] — and the six device members define what is shown [QDDSSRC/MNUDSPF.dspf:L19] and printed [QDDSSRC/POLRPT.prtf:L15].
 
 | DDS kind | Members | Members by name | Lines |
 |----------|---------|-----------------|-------|
-| Physical file | 3 | `POLMST.pf`, `SVCPF.pf`, `CLMPF.pf` | 202 |
-| Logical file | 1 | `POLMSTL1.lf` | 14 |
-| Display file | 4 | `MNUDSPF.dspf`, `NBUWDSPF.dspf`, `SVCDSPF.dspf`, `CLMDSPF.dspf` | 446 |
-| Printer file | 2 | `POLRPT.prtf`, `CLMRPT.prtf` | 126 |
+| Physical file | 3 | `POLMST.pf` [QDDSSRC/POLMST.pf:L1-L81], `SVCPF.pf` [QDDSSRC/SVCPF.pf:L1-L54], `CLMPF.pf` [QDDSSRC/CLMPF.pf:L1-L67] | 202 |
+| Logical file | 1 | `POLMSTL1.lf` [QDDSSRC/POLMSTL1.lf:L1-L14] | 14 |
+| Display file | 4 | `MNUDSPF.dspf` [QDDSSRC/MNUDSPF.dspf:L1-L55], `NBUWDSPF.dspf` [QDDSSRC/NBUWDSPF.dspf:L1-L147], `SVCDSPF.dspf` [QDDSSRC/SVCDSPF.dspf:L1-L129], `CLMDSPF.dspf` [QDDSSRC/CLMDSPF.dspf:L1-L115] | 446 |
+| Printer file | 2 | `POLRPT.prtf` [QDDSSRC/POLRPT.prtf:L1-L66], `CLMRPT.prtf` [QDDSSRC/CLMRPT.prtf:L1-L60] | 126 |
 | **Total** | **10** | | **788** |
 
 Two things about the distribution are worth stating plainly, because both bear on how much of the estate a modern-language engineer can read on day one.
@@ -173,7 +173,9 @@ Two things about the distribution are worth stating plainly, because both bear o
 
 ## Object-count reconciliation
 
-Members and objects are not the same thing, and the difference matters when scoping a migration: 24 members produce 23 independently compiled objects, because one member is compiled into no object of its own. The documented build procedure is the authority for the mapping, and every command it issues is accounted for below.
+Members and objects are not the same thing, and the difference matters when scoping a migration: the documented build procedure turns 24 members into 23 independently compiled objects, because one member — the shared copybook, which is pulled into its consumers textually rather than compiled [QCPYSRC/POLDATA.cpy:L14], [QCBLLESRC/NBUWB.cbl:L60] — is compiled into no object of its own. That procedure is the authority for the mapping, and every object-creating command it issues is accounted for below [README.md:L140-L143], [README.md:L149-L154], [README.md:L160-L176], [README.md:L182-L192].
+
+**Read the figure as what it is: arithmetic over the build procedure, not a compilation result.** It counts the objects the documented sequence sets out to create, one per command, and that is the count a migration needs for scoping. It is not evidence that the sequence completes, and nothing in this repository could make it so — the estate names the platform as its object computer as well as its source computer in all eight COBOL members [QCBLLESRC/MAINMENU.cbl:L27-L28], no compiler for ILE COBOL or ILE CL exists off-platform, and no build log, object listing or compilation output accompanies the source. The fifth qualification below records why that distinction is load-bearing rather than pedantic here.
 
 | Build step | Commands issued | Objects created | Evidence |
 |------------|-----------------|-----------------|----------|
@@ -194,12 +196,13 @@ copybook                textually included, compiled to no object   =  0
 source members accounted for                                        = 24
 ```
 
-Four qualifications keep that arithmetic honest.
+Five qualifications keep that arithmetic honest.
 
 - **The copybook is included, not compiled.** `QCPYSRC/POLDATA.cpy` appears in no build step, because it is pulled into its consumers textually at compile time by a single statement: `COPY POLDATA.` in seven of the eight COBOL members [QCBLLESRC/NBUWMNT.cbl:L50], [QCBLLESRC/NBUWB.cbl:L60], [QCBLLESRC/SVCMNT.cbl:L56], [QCBLLESRC/SVCBILB.cbl:L64], [QCBLLESRC/CLMMNT.cbl:L55], [QCBLLESRC/CLMADJB.cbl:L58], [QCBLLESRC/POLMSTINQ.cbl:L50]. The eighth, the menu program, does not copy it and declares no database file at all — only its display file [QCBLLESRC/MAINMENU.cbl:L32-L36].
 - **The copybook's own banner under-reports its consumers.** It names six programs as users — the two new business members, the two servicing members and the two claims members [QCPYSRC/POLDATA.cpy:L12] — and omits the inquiry program, which copies it nonetheless [QCBLLESRC/POLMSTINQ.cbl:L50]. Seven members copy it; the banner lists six.
-- **Thirteen module objects exist as intermediates.** The two-step ILE build creates a module and then binds it into a program, so 13 module objects are produced on the way to the 13 program objects and are not additional deployable components [README.md:L160-L167], [README.md:L182-L186].
+- **Thirteen module objects are intermediates rather than deliverables.** The two-step ILE build compiles a module and then binds it into a program, so the procedure names 13 module objects on the way to the 13 program objects and they are not additional deployable components [README.md:L160-L167], [README.md:L182-L186].
 - **Four runtime objects have no source member in this repository.** A [job description](../reference/glossary-ibm-i.md#job-description), a [job queue](../reference/glossary-ibm-i.md#job-queue), an [output queue](../reference/glossary-ibm-i.md#output-queue) and a [message queue](../reference/glossary-ibm-i.md#message-queue) are created by command rather than compiled from source, alongside the scheduler entry for the nightly job [README.md:L197-L212]. They are therefore outside the 23 and outside the 24, and they are absent from any register that counts only members. Their runtime roles belong to [the operational model](06-operational-model.md).
+- **The source as committed carries defects that a compiler would be expected to reject, so the thirteen program objects are what the build procedure sets out to produce rather than a set known to exist.** This is the qualification the other four make necessary, and it is stated here rather than left to a reader to infer from a register that otherwise reads as a description of working software. Five classes of blocker are evident from the source without compiling anything — the same five [the operational model](06-operational-model.md) lists against the build step they would interrupt — and each is anchored where it is established rather than restated here: four `RECORD KEY` declarations name an item that is not in the record description of the file's own `FD`, two of them naming a group item rather than a field, all four documented in [the current data model](04-data-model-current-state.md); every consumer of the shared contract declares a 979-byte record area against a 233-byte file record, and both secondary-file writers do the same against 127- and 202-byte records, also in the data model; one statement assigns an identifier that its own program never declares and does so through a qualifier found nowhere else in the estate [QCBLLESRC/SVCBILB.cbl:L372]; four statements use `STOP PERFORM`, which is not a form of the `STOP` statement, at [QCBLLESRC/SVCBILB.cbl:L359], [QCBLLESRC/SVCBILB.cbl:L381], [QCBLLESRC/SVCMNT.cbl:L290] and [QCBLLESRC/SVCMNT.cbl:L307]; and the four interactive programs reference [DDS](../reference/glossary-ibm-i.md#dds-data-description-specifications) screen-field names and native [indicators](../reference/glossary-ibm-i.md#indicator) for which no program provides a declaration and no program copies an external description — every display file is declared as a program-described `PIC X(80)` area instead, for example [QCBLLESRC/MAINMENU.cbl:L32-L36]. **This register therefore counts objects and does not assert buildability.** Whether the platform's compiler rejects each of these, diagnoses and continues, or accepts some as extensions is a property of that compiler and cannot be established in this environment; what is established is that the defects are in the committed source. Each carries a disposition in [the known defects and stubs register](07-known-defects-and-stubs.md), and the build order they would interrupt is documented in [the operational model](06-operational-model.md).
 
 Persistent structure is defined entirely by DDS. The four data members named in the register — three physical files and one logical file — are the whole of the estate's storage definition, and no other definition of stored structure exists anywhere in the tree [QDDSSRC/POLMST.pf:L14], [QDDSSRC/SVCPF.pf:L14], [QDDSSRC/CLMPF.pf:L14], [QDDSSRC/POLMSTL1.lf:L13].
 
@@ -207,13 +210,13 @@ Persistent structure is defined entirely by DDS. The four data members named in 
 
 The estate was not undocumented, but its documentation was uneven in a way the member counts make precise. Nine machine-generated walkthroughs exist under `.swm/`, named and counted in the corpus's own statistics file [.swm/business-rules-statistics.md:L6-L14]. Eight of the nine describe one COBOL program each; the ninth is a scenario document describing a plan-change journey rather than a member, and it is credited with no rules at all [.swm/business-rules-statistics.md:L6].
 
-| Member group | Members | Had a dedicated document | Coverage |
-|--------------|---------|--------------------------|----------|
-| ILE COBOL programs | 8 | 8 | 100% |
-| ILE CL programs | 5 | 0 | 0% |
-| COBOL copybook | 1 | 0 | 0% |
-| DDS members | 10 | 0 | 0% |
-| **Total** | **24** | **8** | **33%** |
+| Member group | Members | Had a dedicated document | Coverage | Evidence |
+|--------------|---------|--------------------------|----------|----------|
+| ILE COBOL programs | 8 | 8 | 100% | One walkthrough per program, named in the corpus's own statistics [.swm/business-rules-statistics.md:L7-L14], [.swm/business-rules-statistics.md:L20-L27] |
+| ILE CL programs | 5 | 0 | 0% | No walkthrough names a CL member; the corpus lists eight programs and one scenario document and no others [.swm/business-rules-statistics.md:L6-L14] |
+| COBOL copybook | 1 | 0 | 0% | Not among the documents the corpus lists [.swm/business-rules-statistics.md:L6-L14] |
+| DDS members | 10 | 0 | 0% | Not among the documents the corpus lists [.swm/business-rules-statistics.md:L6-L14]; screens appear only as a README table [README.md:L226-L239] |
+| **Total** | **24** | **8** | **33%** | the four rows above |
 
 - **Sixteen members receive their first dedicated documentation in this layer** — all five CL members, the shared copybook and all ten DDS members. Nothing in the prior corpus describes the session entry program [QCLSRC/STRTLIFE.clle:L1-L17], the three batch submitters, the nightly job [QCLSRC/DLYUPD.clle:L1-L23], the record layout every program shares [QCPYSRC/POLDATA.cpy:L14], or any stored or displayed structure.
 - **Screen coverage was partial rather than absent.** The README's screen reference documents 14 [record formats](../reference/glossary-ibm-i.md#record-format) across the four display files [README.md:L226-L239]. The six device members declare 28 formats between them — two in the menu display file [QDDSSRC/MNUDSPF.dspf:L19], [QDDSSRC/MNUDSPF.dspf:L50], six in the new business display file [QDDSSRC/NBUWDSPF.dspf:L24-L137], five each in the servicing and claims display files [QDDSSRC/SVCDSPF.dspf:L23-L117], [QDDSSRC/CLMDSPF.dspf:L21-L109], and five in each printer file [QDDSSRC/POLRPT.prtf:L15-L64], [QDDSSRC/CLMRPT.prtf:L15-L58] — so 14 of 28 were described and 14 were not. The format-by-format inventory and the disposition of each format are owned by [the UI modernization document](../target-state/05-ui-modernization.md).
@@ -221,7 +224,7 @@ The estate was not undocumented, but its documentation was uneven in a way the m
 
 ## Last change of record
 
-The latest date recorded anywhere in the estate is `1998-11-14`, and it is recorded as a Y2K review. No member carries a dated annotation later than it, in a banner or anywhere in procedural code. That single date is the most-cited fact in this whole assessment, and it is also the easiest to overstate, because the review left **three different annotation forms** in the source and each one touches a different number of members. The counts below are not interchangeable.
+The latest date recorded anywhere in the estate is `1998-11-14`, and it is recorded as a Y2K review — as an inline marker beside date logic [QCBLLESRC/SVCBILB.cbl:L136], as a banner note in a COBOL or DDS member [QDDSSRC/POLMST.pf:L8] and as a differently worded banner note in a CL member [QCLSRC/DLYUPD.clle:L8]. No member carries a dated annotation later than it, in a banner or anywhere in procedural code. That single date is the most-cited fact in this whole assessment, and it is also the easiest to overstate, because the review left **three different annotation forms** in the source and each one touches a different number of members. The counts below are not interchangeable.
 
 | Annotation form | Where it is written | Occurrences | Members carrying it | Example |
 |-----------------|---------------------|-------------|---------------------|---------|
@@ -229,10 +232,10 @@ The latest date recorded anywhere in the estate is `1998-11-14`, and it is recor
 | Banner note `MODIFIED: 1998-11-14 - Y2K DATE FIELD REVIEW` | In the member banner | 14 | 14 — 7 COBOL programs, the copybook and 6 DDS members | [QDDSSRC/POLMST.pf:L8] |
 | Banner note `MODIFIED: 1998-11-14 - Y2K: PROCESS DATE FROM SYSTEM` | In the CL member banner | 4 | 4 — the nightly job and the 3 batch submitters | [QCLSRC/DLYUPD.clle:L8] |
 
-**The union is 19 of the 24 members.** The three member counts do not sum to 19 because members carry more than one form: every COBOL program and the copybook carry the inline marker, and all of those except the menu program also carry the banner note. Two consequences need stating in exact terms, because conflating them is the easiest error to make about this system.
+**The union is 19 of the 24 members**, which is the 24 of the register less the five that carry no such annotation at all — [QCLSRC/STRTLIFE.clle:L1-L17], [QDDSSRC/POLMSTL1.lf:L1-L12], [QDDSSRC/MNUDSPF.dspf:L1-L11], [QDDSSRC/POLRPT.prtf:L1-L11] and [QDDSSRC/CLMRPT.prtf:L1-L11], each enumerated with its banner below. The three member counts do not sum to 19 because members carry more than one form: every COBOL program and the copybook carry the inline marker, and all of those except the menu program also carry the banner note. Two consequences need stating in exact terms, because conflating them is the easiest error to make about this system.
 
-- **Nineteen of 24 members carry a dated 1998-11-14 Y2K review annotation** in one form or another.
-- **The literal string `*Y2K-REVIEWED` appears in 9 members, not 19.** It is absent from every CL member and every DDS member. A reader who takes the inline-marker form as estate-wide will be wrong by ten members.
+- **Nineteen of 24 members carry a dated 1998-11-14 Y2K review annotation** in one form or another — the inline marker [QCBLLESRC/SVCBILB.cbl:L136], the COBOL and DDS banner note [QDDSSRC/POLMST.pf:L8], or the CL banner note [QCLSRC/DLYUPD.clle:L8].
+- **The literal string `*Y2K-REVIEWED` appears in 9 members, not 19** — the eight COBOL programs and the copybook, every site listed below [QCBLLESRC/MAINMENU.cbl:L54], [QCPYSRC/POLDATA.cpy:L19]. It is absent from every CL member and every DDS member, whose 1998-11-14 annotations are banner notes in different words [QCLSRC/DLYUPD.clle:L8], [QDDSSRC/POLMST.pf:L8]. A reader who takes the inline-marker form as estate-wide will be wrong by ten members.
 
 All 17 inline-marker sites are listed below, so the count can be checked exhaustively rather than sampled.
 
@@ -264,7 +267,7 @@ This register owns the member set, the per-member banner facts, the language dis
 
 - Paragraph inventories, the call and dispatch graph, and the online-to-batch duplication analysis — [the current-state architecture](02-architecture-current-state.md).
 - Platform support status and the consequence of the declared baseline — [the platform and support status document](03-platform-and-support-status.md).
-- Column counts, elementary-item counts, level-88 domains and the persisted-versus-transient classification — [the current data model](04-data-model-current-state.md).
+- Column counts, elementary-item counts, level-88 domains, the persisted-versus-transient classification, and the record-length and record-key evidence behind two of the compile blockers named above — [the current data model](04-data-model-current-state.md).
 - The business-rule census, the inline rule-identifier bands and how many rules carry a source anchor — [the business rule inventory](05-business-rule-inventory.md).
 - Work-management object roles, the message vocabulary, queue behaviour and the build sequence in operational terms — [the operational model](06-operational-model.md).
 - Defect, stub and inert-feature dispositions — [the known defects and stubs register](07-known-defects-and-stubs.md).

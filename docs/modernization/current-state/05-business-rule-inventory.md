@@ -25,7 +25,7 @@ unique / raw      \b(NB|SV|CL)-[0-9]{3,4}\b     over QCBLLESRC/*.cbl
 definition site   \b(NB|SV|CL)-[0-9]{3,4}:      over QCBLLESRC/*.cbl
 ```
 
-Three sources are reconciled, and each contributes something the other two cannot. The prior corpus contributes the rule population and the descriptive prose. The source members contribute the anchors, the literals and the observable effects. The repository overview contributes an independent domain summary that was written by hand rather than generated, so it serves as a check that no whole domain has been missed.
+Three sources are reconciled, and each contributes something the other two cannot. The prior corpus contributes the rule population and the descriptive prose. The [source members](../reference/glossary-ibm-i.md#source-physical-file-and-source-member) contribute the anchors, the literals and the observable effects. The repository overview contributes an independent domain summary that was written by hand rather than generated, so it serves as a check that no whole domain has been missed.
 
 The corpus under `.swm/` is machine-generated and is consumed strictly as read-only prior art. It is cited by walkthrough and line, never edited, and none of its markup is reproduced here: its generated path and token tags, its click-to-open directives, its duplicated diagram comment blocks and its layout-engine directives are tool-emitted and cannot be hand-authored correctly. Only its prose and its table cells are used, and every prose claim taken from it is verified against the member it describes before it is carried into this inventory. One case below shows why that verification is not a formality.
 
@@ -49,7 +49,7 @@ The corpus publishes a rule count per document [.swm/business-rules-statistics.m
 
 67 + 64 + 57 + 48 + 43 + 25 + 21 + 8 + 0 = **333**, which agrees with the published total [.swm/business-rules-statistics.md:L29].
 
-All 333 come from the eight program walkthroughs. The ninth document is a scenario narrative and contributes **0** [.swm/business-rules-statistics.md:L6], so the rule population is exactly co-extensive with the eight ILE COBOL programs and nothing else. Nothing in the corpus describes a rule in the five ILE CL members, and nothing describes a rule expressed only in DDS.
+All 333 come from the eight program walkthroughs. The ninth document is a scenario narrative and contributes **0** [.swm/business-rules-statistics.md:L6], so the rule population is exactly co-extensive with the eight ILE COBOL programs and nothing else. Nothing in the corpus describes a rule in the five [ILE CL](../reference/glossary-ibm-i.md#cl-control-language) members, and nothing describes a rule expressed only in [DDS](../reference/glossary-ibm-i.md#dds-data-description-specifications).
 
 ### The same total, derived a second way
 
@@ -61,7 +61,7 @@ One measurement caveat matters for anyone re-running this count. A naive count o
 
 ### What kind of rules they are
 
-The Category column classifies all 333 rows. The distribution is worth publishing because it predicts how each rule can be asserted on: a calculation rule yields a number to compare, a decision rule yields a branch outcome, and an output rule yields a written record.
+The Category column classifies all 333 rows — it is the second column of every rule table in the corpus [.swm/polmstinq-policy-master-inquiry.4dyvkwri.sw.md:L146], [.swm/clmadjb-claim-adjudication.2q95z11f.sw.md:L121], and the row counts below were taken over all nine walkthroughs against the corpus total of 333 [.swm/business-rules-statistics.md:L29]. The distribution is worth publishing because it predicts how each rule can be asserted on: a calculation rule yields a number to compare, a decision rule yields a branch outcome, and an output rule yields a written record.
 
 | Category | Rows |
 |---|---|
@@ -72,13 +72,13 @@ The Category column classifies all 333 rows. The distribution is worth publishin
 | Invoking a Service or a Process | 13 |
 | Reading Input | 9 |
 
-123 + 85 + 78 + 25 + 13 + 9 = **333**, a third independent reconciliation of the same total.
+123 + 85 + 78 + 25 + 13 + 9 = **333**, a third independent reconciliation of the same total [.swm/business-rules-statistics.md:L29].
 
 Two thirds of the population — the 208 rows classified as decision or calculation — turn on a value the code computes rather than on a field the user supplied, which is precisely the class of rule that cannot be verified by reading a screen and must be captured from the record the program writes.
 
 ### The corpus supplies no stable per-rule identifier
 
-The corpus does assign identifiers, in the form `BR-nnn`. They cannot be used as inventory keys, and the measurement showing why is unambiguous: numbering **restarts at `BR-001` in every table**, so the identifiers are table-local rather than document-local, let alone corpus-wide. Only **13** distinct identifiers exist across all 333 rules.
+The corpus does assign identifiers, in the form `BR-nnn` [.swm/polmstinq-policy-master-inquiry.4dyvkwri.sw.md:L148]. They cannot be used as inventory keys, and the measurement showing why is unambiguous: numbering **restarts at `BR-001` in every table** — the same walkthrough opens two tables with that identifier, at [.swm/polmstinq-policy-master-inquiry.4dyvkwri.sw.md:L148] and again at [.swm/polmstinq-policy-master-inquiry.4dyvkwri.sw.md:L238] — so the identifiers are table-local rather than document-local, let alone corpus-wide. Only **13** distinct identifiers exist across all 333 rules, counted over all nine walkthroughs.
 
 | Identifier | Times reused across the corpus |
 |---|---|
@@ -96,7 +96,7 @@ The corpus does assign identifiers, in the form `BR-nnn`. They cannot be used as
 | `BR-012` | 2 |
 | `BR-013` | 1 |
 
-73 + 71 + 67 + 48 + 29 + 15 + 7 + 7 + 6 + 4 + 3 + 2 + 1 = **333**. `BR-001` occurring exactly 73 times is the same 73 as the table count, which is what "one per table" means.
+73 + 71 + 67 + 48 + 29 + 15 + 7 + 7 + 6 + 4 + 3 + 2 + 1 = **333** [.swm/business-rules-statistics.md:L29]. `BR-001` occurring exactly 73 times is the same 73 as the table count, which is what "one per table" means.
 
 The consequence is structural rather than cosmetic. A parity report that cited `BR-006` would be ambiguous across 15 different rules, and a defect raised against `BR-001` would be ambiguous across 73. The inventory therefore cannot adopt the corpus identifiers; it needs its own, and it needs them stable, which is what the extraction procedure below is for.
 
@@ -104,27 +104,27 @@ The consequence is structural rather than cosmetic. A parity report that cited `
 
 ### The measured identifier census
 
-Three of the eight programs carry inline rule identifiers in their comments. The counts below are of the source as it stands in this repository.
+Three of the eight programs carry inline rule identifiers in their comments — the `NB-` band in [QCBLLESRC/NBUWB.cbl:L198], the `SV-` band in [QCBLLESRC/SVCBILB.cbl:L200] and the `CL-` band in [QCBLLESRC/CLMADJB.cbl:L208]. The counts below are of the source as it stands in this repository, each row measured over the whole member it names.
 
-| Program | Band | Unique identifiers | Raw occurrences | Definition sites |
-|---|---|---|---|---|
-| `QCBLLESRC/NBUWB.cbl` | `NB-` | 28 | 42 | 25 |
-| `QCBLLESRC/SVCBILB.cbl` | `SV-` | 16 | 24 | 8 |
-| `QCBLLESRC/CLMADJB.cbl` | `CL-` | 15 | 23 | 13 |
-| `QCBLLESRC/NBUWMNT.cbl` | none | 0 | 0 | 0 |
-| `QCBLLESRC/SVCMNT.cbl` | none | 0 | 0 | 0 |
-| `QCBLLESRC/CLMMNT.cbl` | none | 0 | 0 | 0 |
-| `QCBLLESRC/POLMSTINQ.cbl` | none | 0 | 0 | 0 |
-| `QCBLLESRC/MAINMENU.cbl` | none | 0 | 0 | 0 |
-| **Total** | | **59** | **89** | **46** |
+| Program | Band | Unique identifiers | Raw occurrences | Definition sites | Measured over |
+|---|---|---|---|---|---|
+| `QCBLLESRC/NBUWB.cbl` | `NB-` | 28 | 42 | 25 | [QCBLLESRC/NBUWB.cbl:L1-L507] |
+| `QCBLLESRC/SVCBILB.cbl` | `SV-` | 16 | 24 | 8 | [QCBLLESRC/SVCBILB.cbl:L1-L543] |
+| `QCBLLESRC/CLMADJB.cbl` | `CL-` | 15 | 23 | 13 | [QCBLLESRC/CLMADJB.cbl:L1-L314] |
+| `QCBLLESRC/NBUWMNT.cbl` | none | 0 | 0 | 0 | [QCBLLESRC/NBUWMNT.cbl:L1-L498] |
+| `QCBLLESRC/SVCMNT.cbl` | none | 0 | 0 | 0 | [QCBLLESRC/SVCMNT.cbl:L1-L448] |
+| `QCBLLESRC/CLMMNT.cbl` | none | 0 | 0 | 0 | [QCBLLESRC/CLMMNT.cbl:L1-L291] |
+| `QCBLLESRC/POLMSTINQ.cbl` | none | 0 | 0 | 0 | [QCBLLESRC/POLMSTINQ.cbl:L1-L131] |
+| `QCBLLESRC/MAINMENU.cbl` | none | 0 | 0 | 0 | [QCBLLESRC/MAINMENU.cbl:L1-L95] |
+| **Total** | | **59** | **89** | **46** | the eight members above |
 
-Every identifier in the estate lives in a comment. Not one is a data name, a paragraph label or a literal, so no identifier is visible to the compiler and nothing in the build would notice if one were deleted, duplicated or misnumbered.
+Every identifier in the estate lives in a comment — a line carrying an asterisk in column 7 [QCBLLESRC/NBUWB.cbl:L198], [QCBLLESRC/SVCBILB.cbl:L200], [QCBLLESRC/CLMADJB.cbl:L208]. Not one is a data name, a paragraph label or a literal, so no identifier is visible to the compiler and nothing in the build would notice if one were deleted, duplicated or misnumbered [README.md:L160-L176].
 
 ### Reconciling the published figure of 46
 
-Earlier descriptions of this estate state **46** anchored identifiers, broken down as 25 in the batch new-business program, 13 in the batch claims program and 8 in the batch servicing program. This document publishes **59** unique identifiers and **89** raw occurrences. Both figures are correct, and the difference is fully explained rather than merely noted.
+Earlier descriptions of this estate state **46** anchored identifiers, broken down as 25 in the batch new-business program [QCBLLESRC/NBUWB.cbl:L1-L507], 13 in the batch claims program [QCBLLESRC/CLMADJB.cbl:L1-L314] and 8 in the batch servicing program [QCBLLESRC/SVCBILB.cbl:L1-L543]. This document publishes **59** unique identifiers and **89** raw occurrences. Both figures are correct, and the difference is fully explained rather than merely noted.
 
-**46 is the definition-site count.** Measured per band, definition sites number 25 for `NB-`, 8 for `SV-` and 13 for `CL-` — matching the earlier breakdown band for band, exactly. So the earlier figure counts identifiers that carry a description at the line where the rule is implemented, and it counts them correctly. It simply counts a narrower thing than "identifiers the source names".
+**46 is the definition-site count.** Measured per band, definition sites number 25 for `NB-` [QCBLLESRC/NBUWB.cbl:L1-L507], 8 for `SV-` [QCBLLESRC/SVCBILB.cbl:L1-L543] and 13 for `CL-` [QCBLLESRC/CLMADJB.cbl:L1-L314] — matching the earlier breakdown band for band, exactly. So the earlier figure counts identifiers that carry a description at the line where the rule is implemented, and it counts them correctly. It simply counts a narrower thing than "identifiers the source names".
 
 The 89 raw occurrences decompose without remainder:
 
@@ -134,7 +134,7 @@ The 89 raw occurrences decompose without remainder:
 | Paragraph-banner occurrence | 43 | The paragraph's comment banner, which names either a single rule or a range |
 | **Total raw occurrences** | **89** | |
 
-The 43 banner occurrences come from **26** banner lines: 17 banners state a range and therefore name two identifiers each, and 9 banners name a single identifier, giving 17 × 2 + 9 = 43. Adding the 46 definition sites gives 89.
+The 43 banner occurrences come from **26** banner lines: 17 banners state a range and therefore name two identifiers each [QCBLLESRC/NBUWB.cbl:L195], [QCBLLESRC/SVCBILB.cbl:L194], and 9 banners name a single identifier [QCBLLESRC/NBUWB.cbl:L142], [QCBLLESRC/SVCBILB.cbl:L306], giving 17 × 2 + 9 = 43. Adding the 46 definition sites gives 89.
 
 The unique set follows from the same decomposition: 46 identifiers have a definition site, and a further **13** are named only on a banner and nowhere else, giving 59. Those 13 are `NB-101`, `NB-601`, `NB-1001`, `SV-101`, `SV-401`, `SV-403`, `SV-501`, `SV-601`, `SV-701`, `SV-801`, `SV-1001`, `CL-101` and `CL-601`. A banner-only identifier names a rule without describing it, so it locates the rule to a paragraph but not to a line.
 
@@ -142,16 +142,16 @@ The counting rule this document adopts, and the reason for it: **the unique iden
 
 ### What that leaves unanchored
 
-Anchoring is now arithmetic. 333 documented rules, 59 of them named by an identifier in source:
+Anchoring is now arithmetic. 333 documented rules [.swm/business-rules-statistics.md:L29], 59 of them named by an identifier in source [QCBLLESRC/NBUWB.cbl:L1-L507], [QCBLLESRC/SVCBILB.cbl:L1-L543], [QCBLLESRC/CLMADJB.cbl:L1-L314]:
 
 | Quantity | Value | Share of 333 |
 |---|---|---|
 | Rules named by an inline source identifier | 59 | 18% |
 | Rules with no inline source identifier | 274 | 82% |
 
-333 − 59 = **274**. Earlier derived figures of 287 unanchored and 86% rest on the 46 count and are superseded by this recomputation; they are named here only so a reader meeting them elsewhere knows which figure replaced them and why.
+333 − 59 = **274** [.swm/business-rules-statistics.md:L29]. Earlier derived figures of 287 unanchored and 86% rest on the 46 count and are superseded by this recomputation; they are named here only so a reader meeting them elsewhere knows which figure replaced them and why.
 
-The 82% is the size of the extraction job, and it is not distributed evenly. It is concentrated in the five programs that carry no identifier at all, which between them account for 207 of the 333 documented rules.
+The 82% is the size of the extraction job, and it is not distributed evenly. It is concentrated in the five programs that carry no identifier at all, which between them account for 207 of the 333 documented rules — 67 for the menu program [.swm/business-rules-statistics.md:L9], 64 for online new business [.swm/business-rules-statistics.md:L11], 43 for online servicing [.swm/business-rules-statistics.md:L14], 25 for online claims [.swm/business-rules-statistics.md:L8] and 8 for the inquiry program [.swm/business-rules-statistics.md:L12].
 
 ### Documentation volume is not a proxy for anchoring
 
@@ -276,7 +276,7 @@ The two four-digit identifiers, `NB-1001` [QCBLLESRC/NBUWB.cbl:L482] and `SV-100
 
 ### Five of the eight programs carry no identifier at all
 
-This is the qualitative fact that shapes the extraction problem, and unlike every count above it needs no threshold or convention to be exact. Inline rule identifiers exist **only** in the three batch programs. `NBUWMNT`, `SVCMNT`, `CLMMNT`, `POLMSTINQ` and `MAINMENU` carry **none** — not one occurrence between them.
+This is the qualitative fact that shapes the extraction problem, and unlike every count above it needs no threshold or convention to be exact. Inline rule identifiers exist **only** in the three batch programs [QCBLLESRC/NBUWB.cbl:L1-L507], [QCBLLESRC/SVCBILB.cbl:L1-L543], [QCBLLESRC/CLMADJB.cbl:L1-L314]. `NBUWMNT`, `SVCMNT`, `CLMMNT`, `POLMSTINQ` and `MAINMENU` carry **none** — not one occurrence between them, over every line of all five members: [QCBLLESRC/NBUWMNT.cbl:L1-L498], [QCBLLESRC/SVCMNT.cbl:L1-L448], [QCBLLESRC/CLMMNT.cbl:L1-L291], [QCBLLESRC/POLMSTINQ.cbl:L1-L131], [QCBLLESRC/MAINMENU.cbl:L1-L95].
 
 That would be a tolerable gap if the five unanchored programs implemented different logic from the three anchored ones. They do not. [The current-state architecture](02-architecture-current-state.md) establishes that each business domain is implemented twice, and that in new business the online program repeats **nine** paragraph labels from the batch program with 221 of the online engine's 250 significant lines shared. The consequence for this inventory is direct and is the single largest extraction hazard in the estate:
 
@@ -289,22 +289,33 @@ The procedure below therefore treats the identifier set as a starting point and 
 
 One further measurement determines what an assertion can be made against, and it lines up with the identifier census exactly.
 
-The shared outcome pair — the return code and return message declared in the shared data contract [QCPYSRC/POLDATA.cpy:L36-L37], whose role in the record layout is owned by [the current data model](04-data-model-current-state.md) — is written **only** by the three batch programs: [QCBLLESRC/NBUWB.cbl:L487-L488], [QCBLLESRC/NBUWB.cbl:L497-L498], [QCBLLESRC/NBUWB.cbl:L505-L506], [QCBLLESRC/SVCBILB.cbl:L107-L108], [QCBLLESRC/SVCBILB.cbl:L121-L122], [QCBLLESRC/CLMADJB.cbl:L298], [QCBLLESRC/CLMADJB.cbl:L304-L305] and [QCBLLESRC/CLMADJB.cbl:L312-L313]. The five interactive programs reference neither field even once. The online new-business program, for instance, moves its result code to a [display file](../reference/glossary-ibm-i.md#display-file) field instead [QCBLLESRC/NBUWMNT.cbl:L210].
+The shared outcome pair — the return code and return message declared in the shared data contract [QCPYSRC/POLDATA.cpy:L36-L37] — is written **only** by the three batch programs: [QCBLLESRC/NBUWB.cbl:L487-L488], [QCBLLESRC/NBUWB.cbl:L497-L498], [QCBLLESRC/NBUWB.cbl:L505-L506], [QCBLLESRC/SVCBILB.cbl:L107-L108], [QCBLLESRC/SVCBILB.cbl:L121-L122], [QCBLLESRC/CLMADJB.cbl:L298], [QCBLLESRC/CLMADJB.cbl:L304-L305] and [QCBLLESRC/CLMADJB.cbl:L312-L313]. The five interactive programs reference neither field even once. The online new-business program, for instance, moves its result code to a [display file](../reference/glossary-ibm-i.md#display-file) field instead [QCBLLESRC/NBUWMNT.cbl:L210].
 
-So the programs whose rules are anchored are the same programs whose outcomes are observable in a record. For the five interactive programs an outcome is a screen field, which no record comparison can see. The inventory records the observable effect per anchor rather than per rule for exactly this reason, and the effect it records for an online anchor is a field of the record the program rewrites, or a screen field, whichever the code actually sets.
+### Writing a field into the record area is not the same as storing it in a column
+
+That census says which programs write the pair. It does not say what a comparison of records would find afterwards, and the difference is the single most important constraint on this inventory. Two facts owned by [the current data model](04-data-model-current-state.md) settle it, and this document uses them without restating the map: the shared contract is a program-described record area of 979 bytes, the policy master's own record is 233, and the two agree item-for-column only for the first 44 bytes.
+
+Three consequences follow for anything this inventory calls an effect.
+
+- **A status transition is observable in the column it names.** The contract status sits inside the first 44 bytes, where the contract and the file agree, so a rule that moves a status value and rewrites — the rejected status the batch new-business program sets [QCBLLESRC/NBUWB.cbl:L507] — is visible in that column afterwards. Status effects are therefore assertable by column, and so is anything else the contract declares in its first seven items.
+- **The outcome pair is not observable as an outcome.** The pair occupies bytes 45 to 146 of the record area, and on the policy master those bytes are the insured, benefit and premium columns rather than any outcome column: the code lands on the first two bytes of the insured name and the message runs from there through the first eight bytes of the annual premium. So a batch program that sets a return code of 12 and a message and then rewrites [QCBLLESRC/NBUWB.cbl:L504-L507], [QCBLLESRC/NBUWB.cbl:L97] does not leave a return code anywhere a comparison can read as a return code — it leaves the digits and the message text lying across a 102-byte region the file defines as something else. An assertion of the form "the record's return-code column equals 12" cannot be written, because there is no such column; an assertion that those bytes changed, and to what, can be.
+- **Items beyond byte 233 do not reach the record at all.** Six of the contract's nine groups begin past the end of the policy master's record, so a rule whose only effect is a mutation in one of them has no record-visible effect whatever, on either path. The audit stamp is the clearest case and is where a rule inventory is most likely to over-claim.
+
+So the programs whose rules are anchored are the same programs whose outcomes leave *some* trace in a record, but "record-visible" has to be decided per field and per byte range rather than per program. For the five interactive programs an outcome is a screen field, which no record comparison can see at all. The inventory therefore records the observable effect per anchor, and for each effect it records the channel — an aligned column, a byte range under a column of another name, a screen field, or nothing observable.
 
 ## Extracting the remaining 274
 
 The procedure below is dependency-ordered: each step consumes the output of the one above it, and no step may be started on a rule whose predecessor step is incomplete. It reconciles the three sources named earlier, and it produces one inventory entry per rule per implementing path.
 
-- **Enumerate the population.** Take every rule-table row in the corpus, keyed by walkthrough file and line, giving 333 rows. The row's Rule Name, Description, Implementation Details and Category carry over as the rule's descriptive fields, and its table-local `BR-nnn` value is retained only as provenance, never as a key.
+- **Enumerate the population.** Take every rule-table row in the corpus, keyed by walkthrough file and line, giving 333 rows [.swm/business-rules-statistics.md:L6-L14], [.swm/business-rules-statistics.md:L29] — a row being one line of a five-column rule table [.swm/polmstinq-policy-master-inquiry.4dyvkwri.sw.md:L146], [.swm/polmstinq-policy-master-inquiry.4dyvkwri.sw.md:L148]. The row's Rule Name, Description, Implementation Details and Category carry over as the rule's descriptive fields, and its table-local `BR-nnn` value is retained only as provenance, never as a key.
 - **Bind each row to a paragraph.** Rule tables follow the walkthrough's workflow sections, and each section corresponds to a paragraph or to a contiguous span of one. Use the paragraph inventory in [the current-state architecture](02-architecture-current-state.md) as the frame and confirm the binding against the member. A row that cannot be bound to a paragraph is carried forward as unlocated rather than forced.
-- **Bind to an in-source identifier where one exists.** For each of the 59 identifiers, attach it to the rule its definition site describes, or to the rules of its paragraph where the identifier is banner-only. This is what raises the 59 from comments to keys.
+- **Bind to an in-source identifier where one exists.** For each of the 59 identifiers [QCBLLESRC/NBUWB.cbl:L1-L507], [QCBLLESRC/SVCBILB.cbl:L1-L543], [QCBLLESRC/CLMADJB.cbl:L1-L314], attach it to the rule its definition site describes [QCBLLESRC/NBUWB.cbl:L198], or to the rules of its paragraph where the identifier is banner-only [QCBLLESRC/NBUWB.cbl:L142]. This is what raises the 59 from comments to keys.
 - **Assign an identifier where none exists.** See the convention below.
 - **Locate the code span and verify the prose against it.** Record the line range that implements the rule, and check the corpus description against the code before accepting it. This step is not optional and is not a formality: in the issue-age rule below, the corpus Implementation Details cell states that plans other than the two it names use an age range of 18 to 50 [.swm/nbuwb-new-business-and-underwriting-batch-processing.yatiwmqj.sw.md:L393], whereas the plan-parameter paragraph assigns that range to the third named plan [QCBLLESRC/NBUWB.cbl:L175-L176] and its catch-all branch assigns no ages at all, setting an invalid-plan error instead [QCBLLESRC/NBUWB.cbl:L189-L191]. The prose conflates a plan with the fallback. A test written from the prose would encode a rule the system does not have.
-- **Record the observable effect.** A field mutation, a status transition, or a value in the shared outcome pair. Where the effect is a screen field rather than a record field, say so, because that determines whether the rule can be asserted on by comparing records at all.
-- **Classify the path relationship.** Duplicated, divergent, single-path, or unlocated, per the four cases below.
-- **Reconcile and close.** The entry count must equal 333 plus one additional entry for each divergent rule's second path, every one of the 59 in-source identifiers must appear on at least one entry, and every entry must carry either a source anchor or an explicit unlocated marker. A mismatch in any of the three is a defect in the inventory, not a tolerance.
+- **Record the observable effect, and the channel it is observable through.** Name the item the code sets, then resolve what a comparison would see: an aligned column, a byte range the file defines under another column name, a screen field, or nothing observable. The section above establishes why the last three are all real cases and why "the outcome pair was set" is not by itself an observable effect.
+- **Check the prerequisites before declaring the rule assertable.** Provenance, numeric representation and interval arithmetic each disqualify assertions that would otherwise look well formed. The three checks are specified below, after the four cases.
+- **Classify the path relationship.** Duplicated, divergent, single-path, or unlocated, per the four cases below, and where the two paths differ record which divergence family it belongs to.
+- **Reconcile and close.** The entry count must equal 333 [.swm/business-rules-statistics.md:L29] plus one additional entry for each divergent rule's second path, every one of the 59 in-source identifiers must appear on at least one entry [QCBLLESRC/NBUWB.cbl:L1-L507], [QCBLLESRC/SVCBILB.cbl:L1-L543], [QCBLLESRC/CLMADJB.cbl:L1-L314], and every entry must carry either a source anchor or an explicit unlocated marker. A mismatch in any of the three is a defect in the inventory, not a tolerance.
 
 ### What every entry carries
 
@@ -317,8 +328,9 @@ The procedure below is dependency-ordered: each step consumes the output of the 
 | `anchor` | Member path and line range, one per implementing path | Two anchors for a duplicated rule; `unlocated` where no code can be found |
 | `provenance` | Walkthrough path, line, and table-local `BR-nnn` | Lets any entry be traced back to the prose it came from |
 | `precondition` | The condition under which the rule fires | Taken from the code, corroborated against the prose |
-| `effect` | The observable effect, and whether it lands in a record or on a screen | Recorded **per anchor**, because two paths implementing one rule can report the same decision through different channels |
-| `divergence` | `none`, `latent` or `active` | Whether the paths' **decisions** differ, in the vocabulary of [the current-state architecture](02-architecture-current-state.md): `latent` means they agree on current data and would part company on a parameter change, `active` means they already differ |
+| `effect` | The observable effect and the channel it is observable through — aligned column, byte range under a column of another name, screen field, or nothing observable | Recorded **per anchor**, because two paths implementing one rule can report the same decision through different channels, and because whether an effect reaches a column at all is a property of byte position rather than of the item's name |
+| `divergence` | `none`, `latent`, `active` or `inert` | Whether the paths' **decisions** differ, in the vocabulary of [the current-state architecture](02-architecture-current-state.md): `latent` means they agree on current data and would part company on a change the estate permits, `active` means they already differ, and `inert` means the source differs while the answer does not |
+| `prerequisites` | Any provenance, numeric-representation or interval-arithmetic condition that limits what may be asserted | Empty for most rules; where it is not empty it constrains or removes the assertion, and the three checks are specified below |
 
 ### Assigning identifiers to the unanchored rules
 
@@ -337,21 +349,56 @@ assigned key     INV-0417      four digits, no band prefix, exists only in the i
 ### The four cases that lose coverage if handled loosely
 
 - **Duplicated logic — one key, two anchors.** Where a rule is implemented on both the online and the batch path with the same precondition and the same decision, it gets **one** key carrying **two** anchors. Two keys would double-count the rule and would report a parity comparison as covering two rules when it covers one. A difference in how the two paths then *report* that decision does not split the key, because the effect is recorded per anchor; only a difference in the decision itself does. The rider-pricing rules are the reference case: `NB-701` through `NB-703` anchored at [QCBLLESRC/NBUWB.cbl:L411-L427] and the same three rules anchored, unnamed, at [QCBLLESRC/NBUWMNT.cbl:L434-L445].
-- **Divergent logic — two keys, one family.** Where the two paths genuinely differ, one key cannot carry one expected answer, so the rule gets **two** entries sharing a family reference, each with its own anchor, its own expected effect and a `divergence` value. The claims domain supplies both flavours: the batch-only medical-records referral is `active` divergence, since the paths already answer differently [QCBLLESRC/CLMADJB.cbl:L220-L226]; the contestability window is `latent`, since the online path compiles the window in [QCBLLESRC/CLMMNT.cbl:L214] while the batch path reads it from plan parameters [QCBLLESRC/CLMADJB.cbl:L206-L207] and every plan currently sets the same value. Collapsing a latent divergence into one entry is the more dangerous error of the two, because a comparison of current outputs would show no difference and would certify a rule that is not in fact single-valued.
-- **Unanchored rules — assigned key, real anchor.** The 274 rules with no in-source identifier get an assigned key and a **measured** anchor: the line range of the code that implements them. Unanchored means unnamed, not unlocatable, and for four of the five silent programs the paragraph structure makes location straightforward. `MAINMENU` is the exception and is called out as such: with no numbered paragraph to bind to, its 67 rules bind to spans of the single driver paragraph, and the span boundaries are part of the inventory entry rather than derivable from a label.
-- **Rules with no locatable code — recorded as unlocated.** Where corpus prose describes behaviour that cannot be found in any member, the entry is marked `unlocated` and carries no anchor. Fabricating an anchor to satisfy a completeness target would be the worst available outcome: it would pass the citation check, since the path and line range would resolve, and it would put a rule into the acceptance oracle that no code implements. Unlocated entries are counted and reported as a coverage gap, and they are the one class of entry that is allowed to remain open.
+- **Divergent logic — two keys, one family.** Where the two paths genuinely differ, one key cannot carry one expected answer, so the rule gets **two** entries sharing a family reference, each with its own anchor, its own expected effect and a `divergence` value. The claims domain supplies all three flavours on its own: the batch-only medical-records referral is `active`, since the paths already answer differently [QCBLLESRC/CLMADJB.cbl:L220-L226]; the contestability window is `latent`, since the online path compiles the window in [QCBLLESRC/CLMMNT.cbl:L214] while the batch path reads it from plan parameters [QCBLLESRC/CLMADJB.cbl:L206-L207] and every plan currently sets the same value; and the overwritten outcome code in the batch document check is `inert`, since the value it lands on is the one the online path sets directly [QCBLLESRC/CLMADJB.cbl:L192], [QCBLLESRC/CLMADJB.cbl:L195] against [QCBLLESRC/CLMMNT.cbl:L205]. Collapsing a latent divergence into one entry is the most dangerous of the three, because a comparison of current outputs would show no difference and would certify a rule that is not in fact single-valued; collapsing an inert one loses the fact that a documented outcome code is unreachable.
+- **Unanchored rules — assigned key, real anchor.** The 274 rules with no in-source identifier get an assigned key and a **measured** anchor: the line range of the code that implements them, in the five members that name none of their own [QCBLLESRC/NBUWMNT.cbl:L1-L498], [QCBLLESRC/SVCMNT.cbl:L1-L448], [QCBLLESRC/CLMMNT.cbl:L1-L291], [QCBLLESRC/POLMSTINQ.cbl:L1-L131], [QCBLLESRC/MAINMENU.cbl:L1-L95]. Unanchored means unnamed, not unlocatable, and for four of the five silent programs the paragraph structure makes location straightforward. `MAINMENU` is the exception and is called out as such: with no numbered paragraph to bind to, its 67 rules bind to spans of the single driver paragraph, and the span boundaries are part of the inventory entry rather than derivable from a label.
+- **Rules with no locatable code — recorded as unlocated.** Where corpus prose describes behaviour that cannot be found in any member — the 24 members enumerated in the repository's own structure diagram [README.md:L27-L55] — the entry is marked `unlocated` and carries no anchor. Fabricating an anchor to satisfy a completeness target would be the worst available outcome: it would pass the citation check, since the path and line range would resolve, and it would put a rule into the acceptance oracle that no code implements. Unlocated entries are counted and reported as a coverage gap, and they are the one class of entry that is allowed to remain open.
+
+### The divergence families the four cases have to cover
+
+The four cases say how a divergent rule is recorded. They do not say where divergence occurs, and an extraction that discovered divergences one at a time while walking rules would find the arithmetic ones and miss most of the rest. [The current-state architecture](02-architecture-current-state.md) owns the complete inventory — every divergence found by reading both bodies of each pair, with both sides cited and each classified active, latent or inert. This inventory consumes that table rather than re-deriving it, and no count from it is restated here so that the two documents cannot drift apart.
+
+What matters for extraction is that the divergences fall into families, and that only one family is the kind an extraction naturally looks for.
+
+- **Session-state carryover, in new business.** The batch program resets its accumulators, its outcome pair and both referral flags before validating [QCBLLESRC/NBUWB.cbl:L122-L139]; the online program has no such paragraph and re-enters its issue coordinator with the previous application's state still in place [QCBLLESRC/NBUWMNT.cbl:L166]. A stale outcome code short-circuits the next application, both referral flags latch once set, and the rider screen is written back only where a field is non-blank. Every entry in this family is a **sequence** property: a fixture that runs one transaction per invocation cannot exhibit it on either path, so the inventory must record for each affected rule that its expected effect holds only for the first transaction of a session.
+- **Coverage gaps, in servicing.** Rules present on one path and absent on the other: the batch dispatcher accepts an unrecognised amendment type where the online path rejects it, the third plan's remaining-term refusal and the overdue-premium accrual exist only in batch, and the two paths reprice different sets of riders. Each of these is two entries sharing a family, and each is found only if the fixture exercises the specific amendment type or plan — which makes the fixture matrix, not the rule walk, the thing that determines whether the family is covered.
+- **Reporting and persistence, in claims.** The two claims paths decide alike far more often than they report or persist alike: the batch path rewrites the master on four separate paths where the online path writes only after settlement, one path sets an explanatory message where the other leaves the message it found, the settled batch path never sets the outcome code its own return paragraphs set, and the audit stamp is written on every batch path but only on the settled online path. An assertion on the decision alone would pass for all of these; the inventory therefore records the message and the write as part of the effect, not as commentary on it.
+- **Parameterised windows, across servicing and claims.** The reinstatement, contestability and suicide windows are compiled-in literals on the interactive path and plan parameters on the batch path, and every plan currently loads the value the literal already holds. These are the `latent` entries, and collapsing one into a single entry is the most dangerous error available here, because a comparison of current outputs would certify a rule that is not single-valued.
+- **Differences that produce no difference.** One claims divergence is `inert`: the batch document check moves an outcome code and then overwrites it with the value the online path uses directly, so the paths agree and the overwritten code is unreachable in the estate. It earns an entry because a rule keyed on the overwritten code would otherwise be recorded as expected behaviour that nothing can produce.
+
+### Three prerequisites that decide whether a rule is assertable at all
+
+A rule can be located, anchored, described accurately and still not be assertable. Three conditions are checked before the `assertable_by` value is set, and each of the three disqualifies assertions that look well formed. None is a property of the rule's prose; all three are properties of the code and data the rule runs on.
+
+- **Provenance — is every input the rule reads ever supplied?** The issue-age rules are the case that matters most, because they are the estate's most frequently read input and nothing writes them. `PM-ISSUE-AGE` [QCPYSRC/POLDATA.cpy:L58] is read at twenty-nine lines across five programs and is the receiving field of no statement in any member; the underwriting display file collects a date of birth [QDDSSRC/NBUWDSPF.dspf:L57] and no age; and the only program that reads that date-of-birth field moves it into the contract's own date of birth [QCBLLESRC/NBUWMNT.cbl:L115], which nothing then reads. The consequence for the inventory is precise: every rule that reads issue age can be asserted only against a fixture that plants the value in the record beforehand, and no rule may claim that the application derives it. The full analysis is owned by [the current data model](04-data-model-current-state.md).
+- **Numeric representation — can the fields hold the values the rules compare?** Three cases are established and each changes an expected result. The plan-parameter branches move fourteen-digit literals into thirteen-digit fields [QCBLLESRC/NBUWB.cbl:L149-L150], [QCBLLESRC/NBUWB.cbl:L163-L164], [QCBLLESRC/NBUWB.cbl:L177-L178] declared `PIC 9(13)V99` [QCPYSRC/POLDATA.cpy:L42-L43], so the sum-assured bounds the validation rule tests against [QCBLLESRC/NBUWB.cbl:L239-L240] are not the bounds the product table publishes [README.md:L62-L66]. The reinsurance referral compares the sum assured with a literal larger than its own field can represent [QCBLLESRC/NBUWB.cbl:L471], so `NB-901` cannot fire. And the claim payment amount is unsigned [QCPYSRC/POLDATA.cpy:L169] while the settlement logic decrements it and then tests it for a negative value [QCBLLESRC/CLMADJB.cbl:L281], [QCBLLESRC/CLMMNT.cbl:L266]. An expected value taken from the prose in any of these three cases would encode a rule the system does not have; the expected value has to be the one the declared field arithmetic produces.
+- **Interval arithmetic — is the quantity the rule tests the quantity its name claims?** Treated separately below, because it applies to a whole family of rules rather than to individual fields.
+
+### Interval rules record intended behaviour and actual behaviour separately
+
+Every rule in this estate whose precondition is an interval — the grace and lapse transitions, the reinstatement window, the attained-age calculation, and the contestability and suicide windows — is written as a subtraction of one eight-digit `YYYYMMDD` value from another, compared against a term in days or a term multiplied by 365. The grace evaluation is the reference form [QCBLLESRC/SVCBILB.cbl:L198-L199], and the receiving fields are plain numerics [QCBLLESRC/SVCBILB.cbl:L77-L78]. Nothing in the estate converts such a difference into elapsed days: as [the current-state architecture](02-architecture-current-state.md) records in its absence census, there is no date type in any file, no intrinsic date function and no date-arithmetic construct anywhere, and the boundary analysis is owned by [the current data model](04-data-model-current-state.md).
+
+Two rules follow for the inventory, and they exist to stop a characterization suite from quietly correcting the system it is supposed to characterise.
+
+- **Both readings are recorded, and the actual one is the expected value.** Each interval rule's entry carries the intended calendar behaviour — what the rule is evidently for — as description, and the arithmetic the code performs as its `precondition` and expected effect. Where the two diverge at a boundary, the entry says so in `prerequisites`. A grace rule described as "thirty days after the paid-to date" and asserted as thirty days would fail against the legacy system on most inputs and pass on some, which is the worst of both outcomes: an intermittent failure that looks like a fixture problem.
+- **A fixture may not compute an expected interval with real dates.** Expected values are derived by performing the same integer subtraction the member performs, on the same eight-digit inputs. This is stated as a constraint on the inventory rather than left to the test author, because the natural way to write the fixture — take two dates, subtract them properly — produces expectations the legacy system does not meet, and a suite built that way would be rejected as failing when it is in fact the specification that is wrong.
 
 ### Independent corroboration of domain coverage
 
 The repository overview summarises the rules of each domain in hand-written prose [README.md:L248-L252], and because it was authored independently of the generated corpus it is a useful check that no whole area of behaviour has been missed. Its new-business paragraph names issue-age and sum-assured limits, the maturity-age cap, the occupation restrictions, underwriting-class determination, the rating factors, rider validation, modal loading and reinsurance referral [README.md:L248]; its servicing paragraph names the grace and lapse transitions, the reinstatement window, plan change, the underwriting threshold on a sum-assured increase, billing-mode change and rider addition or removal [README.md:L250]; its claims paragraph names death-only intake, the eligibility check, the contestability and suicide windows, the accidental-death payout, the grace and loan deductions, the settlement floor and the payment modes [README.md:L252].
 
-Every item in those three sentences maps onto a band member enumerated above, and the mapping is exhaustive in that direction — the overview names nothing that has no identifier or paragraph to bind to. It is not exhaustive in the other direction, and cannot be: it is a summary, and it characterises new business as carrying "50+ rules" [README.md:L248], which is a narrative figure rather than a count. The authoritative counts are the ones in this document.
+Every item in those three sentences binds to something locatable in the source, and in that direction the check passes: the overview names no behaviour that has no paragraph or line range to point at. What it does not do is map uniformly onto the identifier bands enumerated above, and three of its items are the reason. Each names behaviour that is real, reachable and commented in the source, and none of the three carries an identifier of its own.
+
+- **The lapse transition**, named in the servicing sentence [README.md:L250]. It is a commented block, `* LAPSE TRANSITION` [QCBLLESRC/SVCBILB.cbl:L206], writing the lapsed status [QCBLLESRC/SVCBILB.cbl:L209]. It sits inside `1300-EVALUATE-PAYMENT-STATUS` [QCBLLESRC/SVCBILB.cbl:L196], whose banner declares the range `SV-201 THRU SV-202` [QCBLLESRC/SVCBILB.cbl:L194] — and it falls between those two definition sites [QCBLLESRC/SVCBILB.cbl:L200], [QCBLLESRC/SVCBILB.cbl:L211] without being either of them.
+- **The settlement floor**, named in the claims sentence [README.md:L252]. `* FLOOR AT ZERO` [QCBLLESRC/CLMADJB.cbl:L280] clamps a negative payment amount back to zero [QCBLLESRC/CLMADJB.cbl:L281-L283]. It sits inside `1500-CALCULATE-SETTLEMENT` [QCBLLESRC/CLMADJB.cbl:L256], past the last definition site that its banner's `CL-501 THRU CL-504` range accounts for [QCBLLESRC/CLMADJB.cbl:L275].
+- **The payment-mode default**, also named in the claims sentence [README.md:L252]. An unset mode is defaulted [QCBLLESRC/CLMADJB.cbl:L294-L296] inside `1600-SETTLE-CLAIM` [QCBLLESRC/CLMADJB.cbl:L288], whose banner names `CL-601` [QCBLLESRC/CLMADJB.cbl:L286] and whose body defines no identifier at all — `CL-601` is one of the 13 banner-only identifiers counted above.
+
+So the corroboration runs to paragraphs and line ranges rather than uniformly to band identifiers, which is why the extraction procedure binds an identifier only **where one exists** and specifies the `anchor` field as a member path plus a line range. An identifier is available for 59 rules and no more; a paragraph and a line range are available for all of them. The check in the other direction cannot be exhaustive either, and does not need to be: the overview is a summary, and it characterises new business as carrying "50+ rules" [README.md:L248], which is a narrative figure rather than a count. The authoritative counts are the ones in this document.
 
 The plan parameters the rules test against are tabulated in the same overview [README.md:L62-L66], and the three plan codes and their issue-age ranges there agree with the parameter branches in the source [QCBLLESRC/NBUWB.cbl:L147-L148], [QCBLLESRC/NBUWB.cbl:L161-L162], [QCBLLESRC/NBUWB.cbl:L175-L176]. That agreement is what makes the overview table usable as fixture data.
 
 ## One rule carried end to end
 
-The issue-age rule is traced in full below, from the prose that describes it to the assertion that would verify it. It is chosen because it exercises every part of the procedure at once: it is anchored in one program and unanchored in its twin, its corpus description is imprecise in a way only source verification catches, and its outcome reaches a record on one path and a screen on the other.
+The issue-age rule is traced in full below, from the prose that describes it to the assertion that would verify it. It is chosen because it exercises every part of the procedure at once: it is anchored in one program and unanchored in its twin, its corpus description is imprecise in a way only source verification catches, its two paths report through different channels, and it fails the provenance prerequisite — the input it tests is read by five programs and written by none. That last property is the reason it is the right worked example rather than a badly chosen one: a rule can be perfectly located and still not be assertable end to end, and this is the estate's most-read input.
 
 | Step | What it establishes | Evidence |
 |---|---|---|
@@ -361,9 +408,10 @@ The issue-age rule is traced in full below, from the prose that describes it to 
 | Paragraph and group | Where it sits, and which group it belongs to | `1200-VALIDATE-APPLICATION` [QCBLLESRC/NBUWB.cbl:L197], group 2, the second annotated paragraph of the program |
 | Batch anchor | Precondition and immediate effect | [QCBLLESRC/NBUWB.cbl:L231-L237] |
 | Online anchor | The same rule, unnamed | The same predicate and the same literals inside the online program's validation paragraph [QCBLLESRC/NBUWMNT.cbl:L306-L312], within `1200-VALIDATE-APPLICATION` [QCBLLESRC/NBUWMNT.cbl:L274] |
-| Observable effect, batch | What a record comparison can see | The driver tests the result code after validation [QCBLLESRC/NBUWB.cbl:L95], the error paragraph copies it into the shared outcome pair and sets the contract status to rejected [QCBLLESRC/NBUWB.cbl:L504-L507], and the record is rewritten [QCBLLESRC/NBUWB.cbl:L97] |
-| Observable effect, online | Why the two anchors need separate assertions | The online program moves the result code to a screen field [QCBLLESRC/NBUWMNT.cbl:L210]; it references neither element of the outcome pair anywhere, and the rejected contract status appears nowhere in the member |
-| Fixture parameters | Inputs that exercise both sides of the boundary | The plan-parameter branches set the age bounds per plan [QCBLLESRC/NBUWB.cbl:L147-L148], [QCBLLESRC/NBUWB.cbl:L161-L162], [QCBLLESRC/NBUWB.cbl:L175-L176], corroborated by the product table [README.md:L62-L66] |
+| Observable effect, batch | What a record comparison can see, resolved by byte position and not by field name | The driver tests the result code after validation [QCBLLESRC/NBUWB.cbl:L95], the error paragraph copies it into the shared outcome pair and sets the contract status to rejected [QCBLLESRC/NBUWB.cbl:L504-L507], and the record is rewritten [QCBLLESRC/NBUWB.cbl:L97]. Of those two writes only the status is observable in the column it names, because it lies inside the first 44 bytes where contract and file agree; the code and message land on bytes 45 to 146, which the file defines as the insured, benefit and leading premium columns |
+| Observable effect, online | Why the two anchors need separate assertions | The online program moves the result code to a screen field [QCBLLESRC/NBUWMNT.cbl:L210]; it references neither element of the outcome pair anywhere, and the rejected contract status appears nowhere in the member. So the online path leaves no record trace of this rule at all, not merely a different one |
+| Provenance prerequisite | Why neither anchor is assertable through the application | The input under test is never assigned. `PM-ISSUE-AGE` [QCPYSRC/POLDATA.cpy:L58] is the receiving field of no statement in any member, and the online path has no screen field that could supply it [QDDSSRC/NBUWDSPF.dspf:L57]. The rule can be exercised only against a fixture that plants the value in the policy-master record before the program runs |
+| Fixture parameters | Inputs that exercise both sides of the boundary, and one that cannot be taken from the published table | The plan-parameter branches set the age bounds per plan [QCBLLESRC/NBUWB.cbl:L147-L148], [QCBLLESRC/NBUWB.cbl:L161-L162], [QCBLLESRC/NBUWB.cbl:L175-L176], corroborated by the product table [README.md:L62-L66]. The age bounds are three-digit fields and hold their literals exactly [QCPYSRC/POLDATA.cpy:L40-L41], so for this rule the published table is usable as fixture data — unlike the sum-assured bounds set in the same paragraph, whose literals exceed their fields |
 | Prose verification | Why the source is authoritative over the description | The corpus cell folds the third plan together with the catch-all branch [.swm/nbuwb-new-business-and-underwriting-batch-processing.yatiwmqj.sw.md:L393]; in source the third plan sets bounds of 18 and 50 [QCBLLESRC/NBUWB.cbl:L175-L176] while the catch-all sets no bounds and raises an invalid-plan error [QCBLLESRC/NBUWB.cbl:L189-L191] |
 
 The rule as it appears in source, comment and predicate together — the definition-site form that the counting rules above are built on:
@@ -385,12 +433,13 @@ And the same rule as a single inventory entry, which is the form the assertion i
 | `anchor` | [QCBLLESRC/NBUWB.cbl:L231-L237] and [QCBLLESRC/NBUWMNT.cbl:L306-L312] |
 | `provenance` | [.swm/nbuwb-new-business-and-underwriting-batch-processing.yatiwmqj.sw.md:L393], table-local `BR-006` |
 | `precondition` | Issue age below the plan minimum or above the plan maximum |
-| `effect`, batch anchor | Return code 12, the message text, contract status set to rejected, record rewritten — all record-visible |
+| `effect`, batch anchor | Contract status set to rejected — observable in its own column. Return code 12 and the message text — written into bytes 45 to 146 of the record area, observable only as a change to the insured, benefit and leading premium columns, not as an outcome column |
 | `effect`, online anchor | Screen result field and screen message only; no record field is set by this path |
 | `divergence` | `none` at the decision, since both paths reject the same inputs on the same bounds |
-| `assertable_by` | Record comparison at the batch anchor; screen capture at the online anchor |
+| `prerequisites` | Provenance: `PM-ISSUE-AGE` is never assigned by any member, so the value under test must be planted in the record by the fixture |
+| `assertable_by` | Batch anchor: record comparison on the status column, plus a byte-range comparison for the code and message. Online anchor: screen capture only |
 
-One key, two anchors, two effect records, one decision. That is the shape of the majority of this estate's rules, and getting it wrong in either direction is costly: two keys would report a comparison as covering twice the ground it does, and one effect record would assert a record outcome against a path that never writes one.
+One key, two anchors, two effect records, one decision, one prerequisite. That is the shape of the majority of this estate's rules, and getting any part of it wrong is costly in a different way each time: two keys would report a comparison as covering twice the ground it does; one effect record would assert a record outcome against a path that never writes one; naming the outcome pair as a column would produce an assertion that cannot be evaluated against the file; and omitting the prerequisite would produce a fixture that exercises the rule with an input the application has no way to set.
 
 ## The acceptance-oracle record format
 
@@ -405,22 +454,27 @@ The inventory is consumed as a table, one row per rule with repeating groups for
 | `anchor` | repeating: member path plus line range | unless `unlocated` | One per implementing path |
 | `provenance` | walkthrough path, line, table-local identifier | always | Traces the entry back to the prose it came from |
 | `precondition` | text | always | Taken from the code, corroborated against the prose |
-| `effect` | repeating, aligned to `anchor` | unless `unlocated` | Names each field the path sets and whether it is record-visible or screen-only |
-| `divergence` | `none`, `latent`, `active` | always | Whether the paths' decisions differ, in the vocabulary of [the current-state architecture](02-architecture-current-state.md) |
-| `assertable_by` | record comparison, screen capture, not assertable | always, per anchor | Determines which anchors a record-level comparison can cover at all |
-| `family` | text | only when `divergence` is not `none` | Groups the two entries of a divergent rule so neither is read alone |
+| `effect` | repeating, aligned to `anchor` | unless `unlocated` | Names each item the path sets **and the channel it is observable through**: aligned column, byte range under a column of another name, screen field, or nothing observable |
+| `divergence` | `none`, `latent`, `active`, `inert` | always | Whether the paths' decisions differ, in the vocabulary of [the current-state architecture](02-architecture-current-state.md), which owns the complete divergence inventory |
+| `prerequisites` | text, possibly empty | always present, often empty | Provenance, numeric-representation and interval-arithmetic conditions that limit the assertion. An empty value is an assertion that all three checks passed, not that they were skipped |
+| `assertable_by` | column comparison, byte-range comparison, screen capture, not assertable | always, per anchor | Determines which anchors a record-level comparison can cover at all. `byte-range comparison` exists because an item written into the record area does not necessarily land in a column of the same meaning |
+| `family` | text | only when `divergence` is not `none` | Groups the two entries of a divergent rule so neither is read alone, and names the divergence family so the fixture matrix can be checked against it |
 
 An illustrative record, in the flattened form a reviewer reads rather than the form a harness parses:
 
 ```text
 NB-202 | in-source | new business | 1200-VALIDATE-APPLICATION | divergence none
-  anchor QCBLLESRC/NBUWB.cbl L231-L237   effect record: code 12, message, status rejected, rewritten
+  prerequisites provenance: PM-ISSUE-AGE never assigned, fixture must plant it
+  anchor QCBLLESRC/NBUWB.cbl L231-L237   effect column: status rejected
+                                         effect bytes 45-146: code 12 and message, under insured/benefit columns
+                                         assertable_by column comparison + byte-range comparison
   anchor QCBLLESRC/NBUWMNT.cbl L306-L312 effect screen: result field and message only
+                                         assertable_by screen capture
 ```
 
 ### Coverage target
 
-**333 of 333** documented rules represented, each carrying a stable identifier and a source anchor — raising anchored coverage from the measured baseline of **59 of 333**, that is 18%, to 100%. The 274 rules that carry no in-source identifier gain an assigned key and a measured anchor; the 59 that do keep their identifier verbatim.
+**333 of 333** documented rules represented [.swm/business-rules-statistics.md:L29], each carrying a stable identifier and a source anchor — raising anchored coverage from the measured baseline of **59 of 333**, that is 18% [QCBLLESRC/NBUWB.cbl:L1-L507], [QCBLLESRC/SVCBILB.cbl:L1-L543], [QCBLLESRC/CLMADJB.cbl:L1-L314], to 100%. The 274 rules that carry no in-source identifier gain an assigned key and a measured anchor; the 59 that do keep their identifier verbatim.
 
 One exception is admitted and must be reported rather than absorbed: a rule whose prose describes behaviour that cannot be located in any member is recorded as `unlocated`, counted, and reported as an open coverage gap. An inventory that reached 333 of 333 by inventing anchors would satisfy every mechanical check in this documentation set and would be worthless, because the citation check confirms that a path and a line range resolve, not that they contain the rule claimed.
 
@@ -428,9 +482,9 @@ One exception is admitted and must be reported rather than absorbed: a rule whos
 
 Three measured constraints make this document load-bearing rather than merely useful.
 
-- **There is nothing to run.** The member register in [the system inventory](01-system-inventory.md) accounts for the entire estate, and none of its members is a test. There is no test-runner configuration anywhere in the repository, so no existing suite defines what correct behaviour is.
-- **There is nothing to compile against, either.** As [the platform and support status document](03-platform-and-support-status.md) records, no command available off the platform can compile, bind or run LIFE400. A behavioural claim about this system cannot be settled by a build; it can only be settled by reading the source or by running the system on the platform it targets.
-- **The rules are the specification.** With no tests and no off-platform execution, the anchored rule inventory is the only written behavioural specification that will exist for this estate. Everything downstream depends on it: [the characterization test strategy](../migration/05-characterization-test-strategy.md) builds its fixtures from these entries, and [parallel run and output parity](../migration/06-parallel-run-and-output-parity.md) asserts against these expected effects. The decision that no module is converted before its characterization suite passes against the legacy system is recorded once, in [MOD-ADR-008 on characterization tests first](../decisions/MOD-ADR-008-characterization-tests-first.md); the evidence above is what that record is decided on, and its reasoning is not restated here.
+- **There is nothing to run.** The member register in [the system inventory](01-system-inventory.md) accounts for the entire estate, and none of its members is a test: the repository's structure diagram enumerates every directory and member it holds [README.md:L27-L55] and the documented build has eight steps with no test step among them [README.md:L120-L218]. There is no test-runner configuration anywhere in the repository, so no existing suite defines what correct behaviour is.
+- **There is nothing to compile against, either.** As [the platform and support status document](03-platform-and-support-status.md) records, no command available off the platform can compile, bind or run LIFE400: every program declares the platform as its source computer [QCBLLESRC/NBUWB.cbl:L45], [QCBLLESRC/MAINMENU.cbl:L27], the build is platform-side [README.md:L120-L218], and the declared runtime baseline is an IBM release [README.md:L264]. A behavioural claim about this system cannot be settled by a build; it can only be settled by reading the source or by running the system on the platform it targets.
+- **The rules are the specification.** With no tests and no off-platform execution, the anchored rule inventory is the only written behavioural specification that will exist for this estate — the corpus prose [.swm/business-rules-statistics.md:L29] plus the 59 identifiers the source itself names [QCBLLESRC/NBUWB.cbl:L1-L507], [QCBLLESRC/SVCBILB.cbl:L1-L543], [QCBLLESRC/CLMADJB.cbl:L1-L314]. Everything downstream depends on it: [the characterization test strategy](../migration/05-characterization-test-strategy.md) builds its fixtures from these entries, and [parallel run and output parity](../migration/06-parallel-run-and-output-parity.md) asserts against these expected effects. The decision that no module is converted before its characterization suite passes against the legacy system is recorded once, in [MOD-ADR-008 on characterization tests first](../decisions/MOD-ADR-008-characterization-tests-first.md); the evidence above is what that record is decided on, and its reasoning is not restated here.
 
 ## Figures owned by other documents
 
@@ -453,6 +507,7 @@ Every member cited above, read as evidence and left unmodified. No member of the
 
 - ILE COBOL, the three members carrying inline rule identifiers — `QCBLLESRC/NBUWB.cbl`, `QCBLLESRC/SVCBILB.cbl`, `QCBLLESRC/CLMADJB.cbl`
 - ILE COBOL, the five members carrying none, cited to establish that absence and the outcome-channel asymmetry — `QCBLLESRC/NBUWMNT.cbl`, `QCBLLESRC/SVCMNT.cbl`, `QCBLLESRC/CLMMNT.cbl`, `QCBLLESRC/POLMSTINQ.cbl`, `QCBLLESRC/MAINMENU.cbl`
-- Shared data contract, cited for the outcome pair every rule reports through — `QCPYSRC/POLDATA.cpy`
+- Shared data contract, cited for the outcome pair every rule reports through, for the plan-parameter and monetary field widths the numeric prerequisite turns on, and for the issue-age item that no member assigns — `QCPYSRC/POLDATA.cpy`
+- DDS display file, cited to establish that the underwriting screen collects a date of birth and no age — `QDDSSRC/NBUWDSPF.dspf`
 - Repository overview, cited for the independent domain summary and the plan parameter table — `README.md`
 - Prior documentation corpus, cited for the rule population, the per-document counts and the rule prose, and never modified — `.swm/business-rules-statistics.md`, `.swm/mainmenu-menu-interaction-and-dispatch.xdjwx2vk.sw.md`, `.swm/nbuwmnt-new-business-maintenance.jngxvgpo.sw.md`, `.swm/nbuwb-new-business-and-underwriting-batch-processing.yatiwmqj.sw.md`, `.swm/svcmnt-policy-servicing-maintenance.um1zpijd.sw.md`, `.swm/svcbilb-batch-policy-servicing-and-amendments.hnvq1sdj.sw.md`, `.swm/clmmnt-interactive-claims-maintenance.fqoabtf9.sw.md`, `.swm/clmadjb-claim-adjudication.2q95z11f.sw.md`, `.swm/polmstinq-policy-master-inquiry.4dyvkwri.sw.md`, `.swm/changing-a-policyholders-insurance-plan.1ogi2aoz.sw.md`

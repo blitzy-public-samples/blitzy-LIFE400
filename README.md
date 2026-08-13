@@ -1,7 +1,7 @@
 # LIFE400 — Term Life Policy System (AS/400 / IBM i)
 
-ACME Life Insurance Co. — Term Life Policy System |
-Platform: IBM AS/400 (iSeries) | ILE COBOL + DDS + ILE CL |
+ACME Life Insurance Co. — Term Life Policy System | 
+Platform: IBM AS/400 (iSeries) | ILE COBOL + DDS + ILE CL | 
 Original Build: March 24 2026 (mimics 1997–1998) | Library: `LIFE400`
 
 ---
@@ -89,13 +89,15 @@ Entry point: **[Modernization assessment](docs/modernization/README.md)**, which
 
 Documentation lives under `docs/`. [`docs/README.md`](docs/README.md) is the landing page, and `docs/modernization/` holds the assessment in seven layers — `current-state/`, `risk/`, `talent/`, `target-state/`, `migration/`, `decisions/`, and `reference/`. The set **describes this system without modifying it**: every claim about LIFE400 carries an inline citation to the source member, DDS member, or build step that establishes it.
 
-Install the pinned documentation dependencies listed in `requirements-docs.txt`:
+Four commands operate the set, and each reads one of the four configuration files at the repository root: `requirements-docs.txt`, `mkdocs.yml`, `.markdownlint-cli2.jsonc`, and `.mlc-config.json`.
+
+Install the pinned documentation dependencies listed in `requirements-docs.txt`. An activated virtual environment is required rather than advisable, because a system Python carrying a PEP 668 `externally-managed-environment` marker refuses a plain install; the environment created below sits at the repository root, which the lint configuration already excludes:
 
 ```bash
-pip install -r requirements-docs.txt
+python3 -m venv .venv && . .venv/bin/activate && pip install -r requirements-docs.txt
 ```
 
-Build the site. Navigation lives in `mkdocs.yml`, and `--strict` turns a missing navigation entry or a broken internal link into a build failure rather than a warning:
+Build the site. `--strict` turns a missing navigation entry or a broken internal link into a build failure rather than a warning. The command reads a root `mkdocs.yml` carrying the navigation, which is planned rather than present, so the dependencies above are installed ahead of it. The same configuration serves `mkdocs serve` for a local preview; that one is long-running and interactive, so it belongs in a terminal session and never in an automated step.
 
 ```bash
 mkdocs build --strict
@@ -107,13 +109,11 @@ Lint the markdown against `.markdownlint-cli2.jsonc`:
 npx --yes markdownlint-cli2@0.23.2 "**/*.md"
 ```
 
-Check that every documentation link resolves, using `.mlc-config.json`:
+Check that every documentation link resolves, using `.mlc-config.json`. `README.md` is named explicitly alongside `docs` because the entry links into the documentation set live in this file. While the set is still being written, links into planned-but-unwritten documents are reported as unresolved; that is the check working rather than a defect in the documents that link forward.
 
 ```bash
-find docs -name '*.md' -exec npx --yes markdown-link-check@3.15.0 --config .mlc-config.json {} \;
+find README.md docs -name '*.md' -exec npx --yes markdown-link-check@3.15.0 --config .mlc-config.json {} \;
 ```
-
-`mkdocs serve` previews the site locally. It is long-running and interactive, so it belongs in a terminal session and never in an automated step.
 
 ---
 
