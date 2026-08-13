@@ -1,0 +1,242 @@
+# LIFE400 Skills Inventory and Gap Analysis
+
+This document answers the second of the two business drivers behind this assessment: the wish to acquire engineering talent more familiar with a modern language. It answers it by establishing what LIFE400 actually demands of the engineer who maintains it — not in the abstract, but as a set of competencies each evidenced against a line of the estate — and then showing why the population able to supply that set is narrower than the population able to supply COBOL, why the estate cannot be worked on by anyone holding only part of the set, where the operative knowledge of the system currently resides, and what a hire for the modernized system would need instead. It is the premise the rest of the talent layer argues from: a claim that some candidate language has a deep labour pool means nothing until the gap that pool has to close has been measured.
+
+**Scope.** This document owns four things and nothing else: the skill set the running estate demands, the reason the available pool is narrower than the generic COBOL pool, the exposure created by knowledge held in people rather than in artifacts, and the capability areas a target-state engineer needs. It does **not** name the target language or runtime — that is decided in [the target-language decision matrix](02-target-language-decision-matrix.md) and recorded in [MOD-ADR-001](../decisions/MOD-ADR-001-target-language-and-runtime.md), and this document deliberately stops short of it so that the gap is established independently of the answer. It does **not** argue platform support status, which is owned by [the platform and support status document](../current-state/03-platform-and-support-status.md). It does **not** enumerate or count business rules, which is owned by [the business rule inventory](../current-state/05-business-rule-inventory.md). It does not register or rate security findings, design any control, or select any component library. It produces no cost, effort, headcount or duration figure, and no schedule of any kind.
+
+**How this document is measured.** Driver 2 is expressed in measurable form as the `SC-2.x` success criteria in [the business drivers and success criteria document](../01-business-drivers-and-success-criteria.md), which owns those identifiers; this document invents none of its own. Four of them bear directly on the analysis below. `SC-2.3` requires that an engineer be productive on the target without any of the platform competencies enumerated here, and the enumeration below is what that criterion is measured against. `SC-2.5` requires that no documented business rule remain without a source anchor, which is the condition that would move the operative specification out of people's heads and into the repository. `SC-2.8` requires that the vocabulary barrier be removed, which is why [the IBM i glossary](../reference/glossary-ibm-i.md) exists at all. `SC-2.9` requires that onboarding not depend on access to the legacy platform. The ambiguity register that resolves what "modern language" is taken to mean belongs to the same document and is not restated here.
+
+**Reading the citations.** Every claim about LIFE400 carries an inline citation of the form `[<path>:<locator>]` immediately after the claim. Citations are plain text and deliberately not hyperlinks: a plain-text citation stays meaningful in a diff and does not depend on a hosting provider's line-anchor syntax. Open the member to read the construct in place. Every range cited below was opened and confirmed to contain the construct claimed; none is carried forward from a prior description of this system. No member of the estate was annotated, reformatted, commented or altered to produce this document — the source is read as evidence and left exactly as it stands. Figures that cannot come from this repository, which for this document means the published state of the COBOL labour market, are attributed to the publisher that states them in the sentence that uses them, and are never presented as a measurement of this organisation or as a projection for this programme. Platform terms link to the glossary on first use in this document.
+
+## The skill set the estate demands
+
+LIFE400 is 4,126 lines of source across 24 members, in three languages plus one shared copybook: 2,827 lines of ILE COBOL in eight programs, 336 lines of ILE CL in five programs, 175 lines in one copybook, and 788 lines of DDS in ten members. The register that establishes those figures member by member is [the system inventory](../current-state/01-system-inventory.md); they are repeated here only because the size is itself part of the talent argument, and it cuts against the intuition. An estate of this size is small enough that a single engineer is expected to hold all of it, and that is precisely why the competencies below are not divisible into separate roles.
+
+What follows is the demand side of the gap, established construct by construct.
+
+### Keyed record-level I/O against externally described files
+
+Data access in LIFE400 is not a query. It is [record-level I/O](../reference/glossary-ibm-i.md#record-level-io) declared per program and per file in the program's own file-control section, and the declaration is the whole of the access strategy:
+
+```text
+SELECT POLMST
+    ASSIGN TO DATABASE-POLMST
+    ORGANIZATION IS INDEXED
+    ACCESS MODE IS RANDOM
+    RECORD KEY IS PM-POLICY-ID
+```
+
+That block is at [QCBLLESRC/NBUWB.cbl:L50-L54]. Every element of it is a thing the engineer must know: that `DATABASE-` names a [physical file](../reference/glossary-ibm-i.md#physical-file) object resolved at run time rather than a path, that `ORGANIZATION IS INDEXED` selects a keyed access path defined outside the program, that `ACCESS MODE IS RANDOM` commits the program to fetching one record by key rather than iterating a set, and that `RECORD KEY` must name a field of the record layout the program has copied in.
+
+Retrieval is then a single record fetched by an exact key, with the not-found case handled as a branch of the read statement itself rather than as an empty result or an exception object [QCBLLESRC/NBUWB.cbl:L83-L91]. The outcome of any file operation is read from a two-character status field the program declares for that purpose [QCBLLESRC/NBUWB.cbl:L63]. There is no query construct of any kind, and no sequential or positioned retrieval either; the census establishing both absences is owned by [the current-state architecture](../current-state/02-architecture-current-state.md). Navigation is exactly what the program writes: one key, one record, one status code.
+
+This is a navigational data model rather than a declarative one, and it is the single competency in this document least likely to transfer. An engineer whose data instincts are declarative — describe the set you want and let something else plan the retrieval — has to invert them to read these programs, because here the retrieval plan *is* the program text.
+
+### The program is also the schema
+
+The record layout is not imported as a type. It is textually pasted into the middle of the file description:
+
+```text
+FD  POLMST.
+COPY POLDATA.
+```
+
+Those two lines are consecutive at [QCBLLESRC/NBUWB.cbl:L59-L60]. The [copybook](../reference/glossary-ibm-i.md#copybook) is expanded by the compiler at that point, so the program and the schema are one artifact after compilation and two artifacts before it. Seven of the eight COBOL programs copy it; the exception is the menu program, which copies nothing and opens no database file at all [QCBLLESRC/MAINMENU.cbl:L32-L36]. The consequence for the reader is unavoidable: no policy-processing program in this estate can be understood without first holding the entire shared contract in mind, because the program's own text names fields it never declares.
+
+### 5250 workstation I/O driven by native indicators
+
+Screen access is a second file declaration in the same program, shaped differently from the first:
+
+```text
+SELECT NBUWDSPF
+    ASSIGN TO WORKSTATION-NBUWDSPF
+    ORGANIZATION IS TRANSACTION
+    ACCESS MODE IS SEQUENTIAL
+```
+
+That is [QCBLLESRC/NBUWMNT.cbl:L33-L37], and it sits immediately above the database declaration for the same program [QCBLLESRC/NBUWMNT.cbl:L38-L43]. A [display file](../reference/glossary-ibm-i.md#display-file) is therefore reached through the same verbs as a data file — opened, read and written — but with a different organisation keyword, and the engineer must know which of the two shapes a given declaration is. The display record itself is declared as one undifferentiated 80-byte area [QCBLLESRC/NBUWMNT.cbl:L47-L48], so the program's view of the screen carries no field structure whatsoever; the structure lives in the DDS member instead.
+
+Control flow is then driven by [indicators](../reference/glossary-ibm-i.md#indicator) — single-character flags that are part of the language rather than of the program, tested directly by number:
+
+```text
+IF *IN03 = '1' OR *IN12 = '1'
+```
+
+That test is at [QCBLLESRC/NBUWMNT.cbl:L71], and equivalents appear in each of the five online programs; the three batch programs contain none, which is what makes this competency specific to the interactive programs rather than general to the estate. There is no analogue for `*IN03` in mainstream application development. It is neither a variable the program declares nor a parameter it receives: it is a numbered global whose meaning is fixed in a different member, in a different language, by a keyword the program never mentions. Reading interactive LIFE400 code means holding that cross-member mapping in memory, because the code itself does not carry it.
+
+### Fixed-format DDS as the declarative layer
+
+[DDS](../reference/glossary-ibm-i.md#dds-data-description-specifications) is a column-sensitive fixed-format language in which meaning depends on which column a token starts in. Field placement is literal screen geometry: `NBPOLID 12A B 3 17` declares a twelve-character alphanumeric both-direction field at row 3, column 17 [QDDSSRC/NBUWDSPF.dspf:L31]. The screen those coordinates address is fixed at twenty-four rows by eighty columns [QDDSSRC/NBUWDSPF.dspf:L14]. Presentation is declared here rather than in code — highlight and underline attributes [QDDSSRC/NBUWDSPF.dspf:L26], [QDDSSRC/NBUWDSPF.dspf:L43] and colour [QDDSSRC/NBUWDSPF.dspf:L40] are DDS keywords, so a program cannot change how its own output looks.
+
+The other half of the indicator mechanism is declared here too. Command keys are bound to the indicator numbers the program tests, in the same member that lays out the screen [QDDSSRC/NBUWDSPF.dspf:L16-L20] — which is the missing half of the `*IN03` mapping above, and the reason the two competencies cannot be learned separately. Indicators also condition which lines of a [record format](../reference/glossary-ibm-i.md#record-format) are emitted at all, and the estate uses that to make one display file serve two different programs: the same header format carries one title under indicator 90 and a different one when it is off [QDDSSRC/SVCDSPF.dspf:L26], [QDDSSRC/SVCDSPF.dspf:L28], and the whole function-key format is doubled the same way [QDDSSRC/SVCDSPF.dspf:L117-L129].
+
+The same fixed-format language also defines persistence and print. The policy master's record format and its key are DDS declarations [QDDSSRC/POLMST.pf:L14], [QDDSSRC/POLMST.pf:L81], as are the key of the servicing file [QDDSSRC/SVCPF.pf:L54], the key of the claims file [QDDSSRC/CLMPF.pf:L67], and the [logical file](../reference/glossary-ibm-i.md#logical-file) that provides a second access path over the policy master [QDDSSRC/POLMSTL1.lf:L13-L14]. Both [printer files](../reference/glossary-ibm-i.md#printer-file) are DDS as well, five record formats each [QDDSSRC/POLRPT.prtf:L15-L64], [QDDSSRC/CLMRPT.prtf:L15-L58]. So DDS is not one skill among several: it is the single language in which this system's data, its screens and its printed output are all defined, and it is a language whose entire surface area is one estate's worth of members.
+
+### ILE CL and OS/400 work management
+
+The five [ILE CL](../reference/glossary-ibm-i.md#cl-control-language) members hold the operational contract, and what they require is knowledge of the platform's work management rather than of programming. Batch work is bound to its data by job-scoped [overrides](../reference/glossary-ibm-i.md#override) that must be paired with an explicit deletion later in the same program — established at [QCLSRC/RUNSVC.clle:L44-L45] and removed at [QCLSRC/RUNSVC.clle:L60-L61], and the same pairing again in the nightly driver [QCLSRC/DLYUPD.clle:L60-L61]. An engineer who does not know that an override has a scope, and that an unpaired override survives the program that set it, cannot safely change either member.
+
+A single submission command names four separate platform objects — a [job description](../reference/glossary-ibm-i.md#job-description), a [job queue](../reference/glossary-ibm-i.md#job-queue), an [output queue](../reference/glossary-ibm-i.md#output-queue) and a [message queue](../reference/glossary-ibm-i.md#message-queue) — in one statement [QCLSRC/RUNSVC.clle:L50-L53]. Failure handling is by monitored condition rather than by exception object: the program names the platform message identifier it is willing to tolerate and continues [QCLSRC/STRTLIFE.clle:L28], [QCLSRC/RUNSVC.clle:L62], [QCLSRC/DLYUPD.clle:L76], so reading this layer means recognising [CPF message](../reference/glossary-ibm-i.md#cpf-message) identifiers on sight and knowing which are benign. Name resolution is session state, manipulated by putting the application library on the job's [library list](../reference/glossary-ibm-i.md#library-list) at sign-on and taking it off again at exit [QCLSRC/STRTLIFE.clle:L27], [QCLSRC/STRTLIFE.clle:L40]. The session itself begins because the entry program is configured as a user profile's [initial program](../reference/glossary-ibm-i.md#initial-program) [QCLSRC/STRTLIFE.clle:L14-L15], which is a platform configuration rather than anything in the source. Even the date the nightly job works against is a platform system value read at run time [QCLSRC/DLYUPD.clle:L45].
+
+The runtime role of each of those objects, and the full message vocabulary, are owned by [the operational model](../current-state/06-operational-model.md) and are not re-enumerated here. What matters for this document is only the shape of the requirement: none of it is application logic, and all of it must be known before any batch member can be changed.
+
+### The shared textual contract
+
+The copybook is 175 lines and defines a single record as nine group items — the control area [QCPYSRC/POLDATA.cpy:L16], plan parameters [QCPYSRC/POLDATA.cpy:L39], insured details [QCPYSRC/POLDATA.cpy:L54], benefit details [QCPYSRC/POLDATA.cpy:L75], premium results [QCPYSRC/POLDATA.cpy:L98], date details [QCPYSRC/POLDATA.cpy:L108], servicing details [QCPYSRC/POLDATA.cpy:L117], claim details [QCPYSRC/POLDATA.cpy:L138] and audit details [QCPYSRC/POLDATA.cpy:L172] — holding 89 elementary items and 48 [level-88 condition names](../reference/glossary-ibm-i.md#level-88-condition-name) between them [QCPYSRC/POLDATA.cpy:L16-L175]. It names its six consumers in its own banner [QCPYSRC/POLDATA.cpy:L12], which is the clearest statement of the coupling available: because the include is textual, the contract is a precondition for reading any of them, and a change to it is a change to all of them.
+
+Three idioms inside it have to be recognised before the programs make sense. Domain values are expressed as condition names attached to a field rather than as an enumerated type — the contract status has eight of them [QCPYSRC/POLDATA.cpy:L23-L30]. A repeating group is declared with a fixed occurrence count and an index, which is how the rider table holds up to five riders [QCPYSRC/POLDATA.cpy:L88-L96]; the [OCCURS and INDEXED BY](../reference/glossary-ibm-i.md#occurs-and-indexed-by) mechanism has no notion of a variable-length collection. And every outcome in the entire system travels through one shared return-code and return-message pair defined in the same record [QCPYSRC/POLDATA.cpy:L36-L37], so there is no per-operation result type to reason from.
+
+Numerics are the fourth idiom, and the one with the most consequence downstream. Monetary values are [zoned decimal](../reference/glossary-ibm-i.md#zoned-decimal) at fifteen digits with two decimal places in the schema [QDDSSRC/POLMST.pf:L52]; only one field in the shared contract is signed at all [QCPYSRC/POLDATA.cpy:L106]; and dates are held as eight-digit numbers rather than as a date type [QDDSSRC/POLMST.pf:L71]. The engineer must know that these are fixed-point decimal representations with exact arithmetic, because that property is load-bearing for the business and is the one an unwary translation silently loses. What each of them becomes in the target is owned by [the target data model and schema mapping](../target-state/03-target-data-model-and-schema-mapping.md).
+
+### Three platform-locked languages
+
+All eight COBOL programs name the platform as both their source computer and their object computer, for example [QCBLLESRC/NBUWB.cbl:L45] and [QCBLLESRC/NBUWB.cbl:L46]. The declared runtime baseline is `ILE COBOL V3R7 · OS/400 V4R2 · IBM AS/400 Model 9406` [README.md:L264], on the platform the repository's own overview names [README.md:L4]. The consequence for hiring is direct and has two parts. A candidate cannot practise on this estate, or evaluate their own fitness for it, without access to the platform it targets — nothing here compiles or runs anywhere else. And the [ILE](../reference/glossary-ibm-i.md#ile-integrated-language-environment) dialect, the CL command set and the DDS format are all specific to that platform, so experience acquired anywhere else transfers only at the level of general programming ability. What the declared baseline means for supportability is argued in [the platform and support status document](../current-state/03-platform-and-support-status.md) and is not re-argued here.
+
+### Positional linkage between programs
+
+Batch programs receive their inputs as positional operands rather than as named parameters — the batch new-business program takes one [QCBLLESRC/NBUWB.cbl:L79] — so the caller and the callee agree by order and by declared picture, with nothing in either member naming the other's expectation. Program-to-program dispatch is by static call to a literal program name, which is one more idiom to learn. The complete per-program signature table and the [paragraph](../reference/glossary-ibm-i.md#paragraph) inventory that goes with it are owned by [the current-state architecture](../current-state/02-architecture-current-state.md).
+
+## Skills demanded versus skills needed
+
+This table is the central artifact of this document. The last column is what makes it an argument rather than an inventory: it records whether the competency in the second column is one a candidate can be expected to bring from mainstream commercial experience. Most rows answer no, and those rows are the reason the available pool is narrow.
+
+| Capability area | What LIFE400 demands today | Evidence | What the target demands instead | Transfers from mainstream experience? |
+|---|---|---|---|---|
+| Data retrieval | Keyed record-at-a-time retrieval declared per program, one record per exact key, no set operations and no sequential path anywhere | [QCBLLESRC/NBUWB.cbl:L50-L54], [QCBLLESRC/NBUWB.cbl:L83-L91] | Declarative set-based querying through a data-access layer, with retrieval planned outside the application | No — the retrieval plan is the program text, which is the inverse of the mainstream model |
+| Schema binding | A record layout textually pasted into the file description, making program and schema one artifact | [QCBLLESRC/NBUWB.cbl:L59-L60], [QCPYSRC/POLDATA.cpy:L12] | Types or entities defined once and imported, with the schema owned independently of any consumer | Partially — the idea of a shared model transfers; textual inclusion and its recompilation coupling do not |
+| Failure handling on I/O | A two-character status field per file plus a not-found branch inside the read statement | [QCBLLESRC/NBUWB.cbl:L63], [QCBLLESRC/NBUWB.cbl:L83-L91] | Exceptions or result types raised and handled by the language's own mechanism | Partially — the concept is familiar; the status-code discipline and in-statement branch are not |
+| Screen definition | Fixed-format, column-sensitive DDS with literal row and column coordinates on a twenty-four by eighty grid | [QDDSSRC/NBUWDSPF.dspf:L31], [QDDSSRC/NBUWDSPF.dspf:L14] | A markup or component layer with flow-based layout, sized by the client rather than by the source | No — positional layout in a column-sensitive source format has no current counterpart |
+| Screen styling | Display attributes and colour declared as DDS keywords, so the program cannot alter its own presentation | [QDDSSRC/NBUWDSPF.dspf:L26], [QDDSSRC/NBUWDSPF.dspf:L40], [QDDSSRC/NBUWDSPF.dspf:L43] | Styling expressed separately from markup and applied by the presentation layer | Partially — separation of styling from content transfers; the keyword vocabulary does not |
+| Screen interaction | Numbered native indicators, bound to command keys in the DDS and tested by number in the program | [QDDSSRC/NBUWDSPF.dspf:L16-L20], [QCBLLESRC/NBUWMNT.cbl:L71] | Named events dispatched to handlers, declared and consumed in the same place | No — a numbered global whose meaning is fixed in another member, in another language, has no analogue |
+| Screen reuse | One display file conditioned by indicator to serve two different programs | [QDDSSRC/SVCDSPF.dspf:L26], [QDDSSRC/SVCDSPF.dspf:L28], [QDDSSRC/SVCDSPF.dspf:L117-L129] | Parameterised or composed components reused by explicit configuration | Partially — reuse is a familiar goal; achieving it by conditioning indicators is not a familiar means |
+| Batch orchestration | Job-scoped file overrides that must be explicitly paired, and submission naming four platform work-management objects at once | [QCLSRC/RUNSVC.clle:L44-L45], [QCLSRC/RUNSVC.clle:L50-L53], [QCLSRC/RUNSVC.clle:L60-L61] | A scheduler and a job runner configured declaratively, with resource binding by configuration rather than by scoped override | No — override scope and the four-object submission model are platform work management, not application skill |
+| Operational failure vocabulary | Platform message identifiers named individually as tolerated conditions | [QCLSRC/STRTLIFE.clle:L28], [QCLSRC/RUNSVC.clle:L62], [QCLSRC/DLYUPD.clle:L76] | Structured logs, typed errors and alerting on named conditions | No — the identifiers are platform-specific and must be recognised on sight |
+| Name resolution and session entry | An application library pushed onto and popped off the job's library list, with the entry program configured as a profile's initial program | [QCLSRC/STRTLIFE.clle:L27], [QCLSRC/STRTLIFE.clle:L40], [QCLSRC/STRTLIFE.clle:L14-L15] | Explicit dependency resolution and an application entry point defined in the application's own configuration | No — library-list search order and profile-driven entry are platform constructs |
+| Domain state modelling | Condition names attached to a field, and repeating groups with a fixed occurrence count and an index | [QCPYSRC/POLDATA.cpy:L23-L30], [QCPYSRC/POLDATA.cpy:L88-L96] | Enumerations and variable-length collections provided by the language | Partially — the concepts exist everywhere; the fixed-occurrence ceiling and condition-name idiom do not |
+| Outcome reporting | One shared return-code and return-message pair carrying every outcome in the system | [QCPYSRC/POLDATA.cpy:L36-L37] | Per-operation typed results, with the outcome shape specific to the operation | Partially — the pattern is recognisable as a legacy convention rather than a current one |
+| Numeric representation | Fixed-point zoned decimal for money, one signed field, and dates held as eight-digit numbers | [QDDSSRC/POLMST.pf:L52], [QCPYSRC/POLDATA.cpy:L106], [QDDSSRC/POLMST.pf:L71] | Exact decimal types for money and a real date type, never binary floating point | Partially — exact decimal exists in mainstream stacks, but recognising why it is mandatory here does not come free |
+| Program linkage | Positional operands agreed by order and picture, with dispatch by static call to a literal name | [QCBLLESRC/NBUWB.cbl:L79] | Named parameters, typed interfaces and resolved dependencies | Partially — the mechanism is legible, but nothing in either member documents the contract |
+| Printed output | Printer files declared in the same fixed-format language as screens and data | [QDDSSRC/POLRPT.prtf:L15-L64], [QDDSSRC/CLMRPT.prtf:L15-L58] | A reporting or document-generation component driven by the same domain services | No — printer-file record formats and spacing keywords are platform-specific |
+| Verification | Nothing to learn the system from: no test member and no automated check exists anywhere in the estate | Absence established in [the migration test strategy](../migration/05-characterization-test-strategy.md) | An executable test suite that documents behaviour and runs on every change | Not applicable — the skill transfers readily; there is simply nothing here to apply it to |
+| **All of the above at once** | **A single program declares its screen access, its database access, its shared record layout and its indicator-driven control flow within forty lines of each other** | **[QCBLLESRC/NBUWMNT.cbl:L33-L37], [QCBLLESRC/NBUWMNT.cbl:L38-L43], [QCBLLESRC/NBUWMNT.cbl:L47-L50], [QCBLLESRC/NBUWMNT.cbl:L71]** | **Concerns separated across layers, each addressable by a different engineer** | **No — this is the row that decides the hiring question, because it is not divisible into roles** |
+
+The final row is the one to read twice. The rows above it could be mistaken for a list of specialisms that might be staffed separately or acquired one at a time. They cannot be, and the evidence is the physical layout of a single member: in the online new-business program, the screen declaration [QCBLLESRC/NBUWMNT.cbl:L33-L37], the database declaration [QCBLLESRC/NBUWMNT.cbl:L38-L43], the copied record layout [QCBLLESRC/NBUWMNT.cbl:L47-L50] and the first indicator test [QCBLLESRC/NBUWMNT.cbl:L71] all occur within forty lines of one another. Any change to that program touches all four. That density, not the length of the list, is what narrows the pool.
+
+## Why the available pool is narrower than generic COBOL
+
+The intuitive framing of Driver 2 is that this is a COBOL problem, and that the relevant labour pool is therefore the COBOL labour pool. It is narrower than that, and the difference is not marginal.
+
+### None of the four platform competencies comes with COBOL experience
+
+An engineer with COBOL experience from another environment brings the language: divisions, sections, pictures, paragraph structure, fixed-point arithmetic. They do not bring any of the following, and each is required by this estate:
+
+- Fixed-format DDS. Externally described files, column-sensitive source, positional screen layout and keyword-declared presentation are specific to this platform's data description language [QDDSSRC/NBUWDSPF.dspf:L31], [QDDSSRC/POLMST.pf:L14]. A COBOL engineer from an environment where record layouts are declared inside the program has never needed it.
+- Keyed record-level I/O against those externally described files. The declaration binds a program to an access path defined in another member, and the program's retrieval strategy is fixed at that point [QCBLLESRC/NBUWB.cbl:L50-L54]. The absence of any sequential path in the estate is part of the same fact, so a habit of iterating a file does not help either; that absence is established by the census in [the current-state architecture](../current-state/02-architecture-current-state.md).
+- 5250 workstation I/O and native indicators. Screens reached through file verbs, an undifferentiated record area, and control flow driven by numbered globals bound in a different member [QCBLLESRC/NBUWMNT.cbl:L33-L37], [QCBLLESRC/NBUWMNT.cbl:L47-L48], [QCBLLESRC/NBUWMNT.cbl:L71], [QDDSSRC/NBUWDSPF.dspf:L16-L20].
+- OS/400 work management. Override scope and pairing, the four-object submission model, monitored conditions and library-list resolution [QCLSRC/RUNSVC.clle:L44-L45], [QCLSRC/RUNSVC.clle:L50-L53], [QCLSRC/DLYUPD.clle:L76], [QCLSRC/STRTLIFE.clle:L27].
+
+So the qualifying population is not "engineers who know COBOL". It is the intersection of that population with engineers who know this platform — and the intersection is a subset by construction.
+
+### The four are required together, not as alternatives
+
+The estate contains no role that requires only one of them. A change as small as adding a field to one screen touches the DDS member that positions it and declares its attributes [QDDSSRC/NBUWDSPF.dspf:L31], the program's handling of the undifferentiated display record [QCBLLESRC/NBUWMNT.cbl:L47-L48], and — whenever the field is one the policy master carries — the shared contract that every other consumer also compiles against [QCPYSRC/POLDATA.cpy:L12]. Changing what a command key does touches the DDS keyword that binds the indicator and the program statement that tests it, in two members and two languages [QDDSSRC/NBUWDSPF.dspf:L16-L20], [QCBLLESRC/NBUWMNT.cbl:L71]. Changing what data a batch run sees touches the override in the CL submitter rather than anything in the COBOL at all [QCLSRC/RUNSVC.clle:L44-L45].
+
+There is exactly one member that does not demand the full set, and it is the exception that shows the rule: the menu program opens a display file and nothing else, copying no shared contract and touching no data [QCBLLESRC/MAINMENU.cbl:L32-L36]. It is the only such member in the estate, its behaviour is owned by [the current-state architecture](../current-state/02-architecture-current-state.md), and it is not a maintenance role.
+
+### There is no relational surface to fall back on
+
+An engineer fluent in relational querying has nothing to apply. Persistence is defined entirely by DDS-declared keyed files — the policy master [QDDSSRC/POLMST.pf:L81], the servicing file [QDDSSRC/SVCPF.pf:L54] and the claims file [QDDSSRC/CLMPF.pf:L67] — plus one logical file that provides a second access path over the first [QDDSSRC/POLMSTL1.lf:L13-L14]. The schema, its absent constraints and what each column becomes are owned by [the current-state data model](../current-state/04-data-model-current-state.md). For this document the point is narrow: familiarity with querying data does not substitute for the ability to navigate it a record at a time, so the most common data skill in the market is not a partial qualification here.
+
+### What the published evidence does and does not establish
+
+Published figures describe the COBOL market, not this estate, and are used here only to bound it. They are attributed to their publishers and are not measurements of this organisation.
+
+- Computerworld, reporting a survey of 357 IT professionals in *The Cobol Brain Drain*, found that 46 per cent already noticed a COBOL programmer shortage, and that 22 per cent put the average age of their COBOL staff at 55 or older.
+- AFCEA, in *Aging Workforce Brings On COBOL Crisis*, describes the majority of COBOL experts as being between 50 and 70 and as leaving the workforce rapidly.
+- Phil Teplitzky, as cited by the recruitment firm DistantJob, puts the average age of a COBOL programmer at 58.
+- A Micro Focus survey — Micro Focus now being part of OpenText — as reported by Metaintro, found that 60 per cent of organisations using COBOL identify finding qualified developers as their single biggest challenge.
+
+Two things follow, and only two. First, each of these figures is an upper bound on the pool available to LIFE400 rather than a description of it, because every one of them counts COBOL engineers generally while this estate additionally requires DDS, workstation I/O and platform work management. Second, none of them can be converted into a number for this organisation, and none is. No cost, rate, effort or headcount figure appears anywhere in this document; where published ranges for such things exist, they are third-party figures about other programmes and are deliberately not repeated here. The labour-pool depth of any *candidate* language is a different question, resting on different evidence, and it belongs to [the target-language decision matrix](02-target-language-decision-matrix.md).
+
+## Single-point-of-knowledge exposure
+
+The pool being narrow would matter less if the system were fully described by its artifacts. It is not, and the two facts compound: as the population able to read the source narrows, a larger share of the operative specification exists only in the memory of the people who have read it.
+
+### Authorship is concentrated in three people, unevenly
+
+The banners of the 24 members name three authors of record, and the distribution is lopsided: one is named on 17 of the 24 members, a second on 6, and a third on exactly one [QCBLLESRC/POLMSTINQ.cbl:L4]. The register that establishes this member by member is [the system inventory](../current-state/01-system-inventory.md), which hands the interpretation here. The interpretation is this. Seventeen of the 24 members — spanning all three languages, and including the shared contract every program compiles against — were authored by one person. The second author's six members are not scattered: they are one business domain end to end, its batch program, its online program, its submitter, its physical file, its display file and its printer file [QCBLLESRC/CLMADJB.cbl:L4], [QCBLLESRC/CLMMNT.cbl:L4], [QCLSRC/RUNCLM.clle:L4], [QDDSSRC/CLMPF.pf:L5], [QDDSSRC/CLMDSPF.dspf:L5], [QDDSSRC/CLMRPT.prtf:L5]. A domain held end to end by one author is a domain whose design rationale has one source.
+
+That is a hiring constraint expressed as a fact about the source: the knowledge needed to change this system was never distributed across a team in the first place, so it cannot be recovered by asking the team.
+
+### The change record ends at a compliance review
+
+Every member carries a fixed comment banner recording author, creation date, version and subsequent changes — for example [QCBLLESRC/NBUWB.cbl:L1-L9] and [QCPYSRC/POLDATA.cpy:L1-L9]. The newest change of record anywhere in the estate is a Y2K review dated `1998-11-14`; no member records anything later, in a banner or in procedural code. The review left an inline marker beside the date logic it certifies, for example `*Y2K-REVIEWED 1998-11-14` in the shared contract [QCPYSRC/POLDATA.cpy:L19] and again beside the audit date [QCPYSRC/POLDATA.cpy:L174]. That review left three different annotation forms in the source, each covering a different number of members, and the counts are not interchangeable; [the system inventory](../current-state/01-system-inventory.md) owns that distinction and states it exactly.
+
+The talent consequence is what belongs here. The estate's own written record of why it is the way it is ends with a compliance review rather than with a functional change [README.md:L258-L259]. Everything the system learned after that point — every operational workaround, every reason a value is what it is, every known-safe way to make a change — is unwritten by construction, because the artifacts stopped recording.
+
+### The documented rules are largely unanchored
+
+The prior walkthrough corpus reports 333 business rules for this system [.swm/business-rules-statistics.md:L29], distributed across nine documents [.swm/business-rules-statistics.md:L4-L14]. Against that, inline rule identifiers exist in only three of the eight COBOL programs: the batch new-business program carries an `NB-` band, the batch servicing program an `SV-` band and the batch claims program a `CL-` band, each written as a comment naming the rule at the line that implements it, for example [QCBLLESRC/NBUWB.cbl:L198]. The four remaining online programs and the menu program carry no such identifier at all. The great majority of the documented rules therefore have no stable identifier tying them to a line of source. The exact proportion, the identifier census and the extraction procedure that closes the gap are owned by [the business rule inventory](../current-state/05-business-rule-inventory.md), which publishes the authoritative figures; this document deliberately publishes none, so that only one count exists in the set.
+
+### The members with no walkthrough are the platform-specific ones
+
+The walkthrough corpus is genuine prior art and is useful. Its coverage, though, is exactly the eight COBOL programs — all 333 rules come from program walkthroughs, and the one scenario document in the corpus contributes none [.swm/business-rules-statistics.md:L4-L14]. Nothing in it describes the five CL members, the copybook, or any of the ten DDS members.
+
+That asymmetry is a talent argument rather than merely a documentation one. The uncovered members — the five CL programs, the copybook and all ten DDS members, sixteen in total, as counted by [the system inventory](../current-state/01-system-inventory.md) — are precisely the platform-specific part of the estate: the entire operational contract, the shared data contract that every program compiles against, and the whole of the presentation and persistence definition. Two thirds of the members, therefore, and specifically the two thirds demanding the scarcest of the competencies catalogued above, have no walkthrough to learn them from — so a new engineer's reading path runs out exactly where the platform knowledge becomes indispensable.
+
+### The same logic is maintained in two places by hand
+
+One structural fact corroborates all of the above: in each business domain the online and the batch program carry the same logic, maintained in parallel, so the knowledge required to change one domain's behaviour spans two members and must be applied consistently to both. The duplication map that establishes this pair by pair is owned by [the current-state architecture](../current-state/02-architecture-current-state.md).
+
+## The target skill set
+
+Stated as capability areas rather than as products, and deliberately without naming a language: the choice of target language and runtime is made in [the target-language decision matrix](02-target-language-decision-matrix.md) and recorded in [MOD-ADR-001](../decisions/MOD-ADR-001-target-language-and-runtime.md). What this document contributes is the shape of the requirement, derived row by row from the table above.
+
+- **A mainstream, currently supported general-purpose language**, so that the hiring question is answered by the ordinary market rather than by a specialist search. This is the whole of Driver 2 reduced to one requirement.
+- **Exact decimal arithmetic as a first-class competence.** Not merely knowing that a decimal type exists, but knowing why money must never pass through binary floating point, because the legacy representation is fixed-point at fifteen digits and two decimals [QDDSSRC/POLMST.pf:L52] and equality of results is the acceptance condition. This is the one legacy property the target must reproduce exactly rather than improve on.
+- **Declarative data access and schema ownership**, replacing per-program keyed navigation with a data model owned independently of its consumers, so that a schema change is not a recompilation of six programs [QCPYSRC/POLDATA.cpy:L12].
+- **Modern presentation-layer skills**, replacing positional screen definition with flow-based layout and named event handling. No component library or design system is named anywhere in this assessment; that selection is explicitly deferred and is recorded as an open gap by [the UI modernization document](../target-state/05-ui-modernization.md).
+- **Automated testing as a routine practice.** This is the largest single behavioural difference between maintaining LIFE400 and maintaining its successor, because the estate contains nothing of the kind to learn from — an absence owned, with the approach that remedies it, by [the migration test strategy](../migration/05-characterization-test-strategy.md).
+- **Configuration externalisation and modern operational practice** — scheduling, structured logging, alerting and dependency resolution declared as configuration — replacing overrides, monitored conditions and library-list manipulation [QCLSRC/RUNSVC.clle:L44-L45], [QCLSRC/STRTLIFE.clle:L27].
+- **Enough insurance domain literacy to read the rule inventory**, which is the one competence that does *not* narrow with the choice of language, and the one the modernized system still concentrates in people unless the rules are anchored as [the business rule inventory](../current-state/05-business-rule-inventory.md) requires.
+
+Every item on that list is available in the general labour market, and none of it is platform-specific. That is the whole of the gap this document exists to establish, and it is what `SC-2.3` in [the business drivers and success criteria document](../01-business-drivers-and-success-criteria.md) is written to test.
+
+## Onboarding implications
+
+Onboarding an engineer onto LIFE400 as it stands requires them to acquire, before making a first safe change: keyed record-level access declared per program [QCBLLESRC/NBUWB.cbl:L50-L54]; the entire shared contract, because the programs reference fields they do not declare [QCBLLESRC/NBUWB.cbl:L59-L60], [QCPYSRC/POLDATA.cpy:L16-L175]; the indicator mechanism split across two languages and two members [QDDSSRC/NBUWDSPF.dspf:L16-L20], [QCBLLESRC/NBUWMNT.cbl:L71]; fixed-format DDS well enough to place a field by coordinate [QDDSSRC/NBUWDSPF.dspf:L31]; override scope and pairing [QCLSRC/RUNSVC.clle:L44-L45], [QCLSRC/RUNSVC.clle:L60-L61]; the four work-management objects a submission names [QCLSRC/RUNSVC.clle:L50-L53]; and the platform message identifiers the CL layer tolerates [QCLSRC/DLYUPD.clle:L76]. That is not a reading list for one language. It is four bodies of knowledge, and the density argument above means none of them can be deferred until later.
+
+Two further conditions make that acquisition harder than the list suggests, and both are properties of the repository rather than opinions about it.
+
+- **There is nothing to learn the system by running it.** The estate contains no test member and no automated check of any kind, so there is no executable description of intended behaviour to read, and no safety net for a first change. The consequence for conversion, and the characterization approach that supplies the missing net, are owned by [the migration test strategy](../migration/05-characterization-test-strategy.md).
+- **There is no way to run it anywhere else.** Every COBOL program names the platform as its object computer as well as its source computer [QCBLLESRC/NBUWB.cbl:L45], [QCBLLESRC/NBUWB.cbl:L46], against a declared baseline [README.md:L264]. Nothing in this estate can be compiled or executed off the platform, so a new engineer cannot experiment on a workstation, and no claim in this assessment was or could be validated by building or running the system. Accuracy here rests on citation and review, which is why every claim above carries one.
+
+Taken together, onboarding cannot be self-service. It requires the platform, and it requires access to whoever still holds the unwritten remainder — which is the same scarce population the hiring problem is about, and the reason the exposure compounds rather than merely persists.
+
+This is also the reason [the IBM i glossary](../reference/glossary-ibm-i.md) exists, and why every document in this set links to it on first use of a platform term. An engineer hired for modern-language fluency — precisely the engineer Driver 2 asks for — will not arrive knowing DDS, physical and logical files, display and printer files, record formats, ILE, copybooks, level-88 condition names, zoned decimal, record-level I/O, indicators, the library list, job descriptions, job queues, output queues, message queues, CPF messages, the 5250 datastream or file overrides. Every document they must read in order to modernize this system, including this one, is saturated with those terms. Removing that barrier is not a courtesy; it is the condition `SC-2.8` states, and it is a prerequisite for the new hire being able to read the assessment that justified hiring them.
+
+## Governing decision record
+
+The decision this document feeds is [MOD-ADR-001, target language and runtime](../decisions/MOD-ADR-001-target-language-and-runtime.md). This document supplies the talent-side input to it: the competencies the estate demands, the evidence that they are demanded together, the reason the qualifying population is a subset of the COBOL population, and the capability areas the target must be satisfiable by. It supplies no candidate and expresses no preference. The weighing of candidate languages against those capability areas is done in [the target-language decision matrix](02-target-language-decision-matrix.md), and the choice itself, with its alternatives and consequences, is recorded in the decision record — which is the only place in this set where that choice is made, and the only place it should be changed.
+
+## Source citations
+
+Every member cited by this document, grouped by artifact class. No member was modified.
+
+- ILE COBOL — `QCBLLESRC/NBUWB.cbl`, `QCBLLESRC/NBUWMNT.cbl`, `QCBLLESRC/MAINMENU.cbl`, `QCBLLESRC/POLMSTINQ.cbl`, `QCBLLESRC/CLMADJB.cbl`, `QCBLLESRC/CLMMNT.cbl`
+- ILE CL — `QCLSRC/STRTLIFE.clle`, `QCLSRC/RUNSVC.clle`, `QCLSRC/DLYUPD.clle`, `QCLSRC/RUNCLM.clle`
+- COBOL copybook — `QCPYSRC/POLDATA.cpy`
+- DDS physical and logical files — `QDDSSRC/POLMST.pf`, `QDDSSRC/SVCPF.pf`, `QDDSSRC/CLMPF.pf`, `QDDSSRC/POLMSTL1.lf`
+- DDS display files — `QDDSSRC/NBUWDSPF.dspf`, `QDDSSRC/SVCDSPF.dspf`, `QDDSSRC/CLMDSPF.dspf`
+- DDS printer files — `QDDSSRC/POLRPT.prtf`, `QDDSSRC/CLMRPT.prtf`
+- Repository overview — `README.md`
+- Prior walkthrough corpus, read as prior art and never edited — `.swm/business-rules-statistics.md`
+
+### External sources
+
+Labour-market information is not present in this repository. Each figure below is attributed to the publisher that states it, is about the COBOL market generally rather than about this estate or this organisation, and is used only as an upper bound on the population available to LIFE400. Locations are given as plain text for the same reason source citations are. No cost, rate, effort or headcount figure is taken from any of them.
+
+- Computerworld — *The Cobol Brain Drain*, `www.computerworld.com/article/1545244/the-cobol-brain-drain.html`: a survey of 357 IT professionals, of whom 46 per cent already noticed a COBOL programmer shortage and 22 per cent put the average age of their COBOL staff at 55 or older; and the observation that the business logic embedded in the programs is the part at risk of leaving with the people who hold it.
+- AFCEA — *Aging Workforce Brings On COBOL Crisis*, `www.afcea.org/signal-media/cyber-edge/aging-workforce-brings-cobol-crisis`: that the majority of COBOL experts are between 50 and 70 and are leaving the workforce rapidly.
+- DistantJob — *Why COBOL still matters?*, `distantjob.com/blog/why-cobol-still-matters/`, citing Phil Teplitzky: the average age of a COBOL programmer stated as 58, and a recognised shortage of new developers entering the field.
+- Metaintro — COBOL developer-shortage analysis, `www.metaintro.com`, reporting a Micro Focus survey, Micro Focus now being part of OpenText: that 60 per cent of organisations using COBOL identify finding qualified developers as their single biggest challenge.
