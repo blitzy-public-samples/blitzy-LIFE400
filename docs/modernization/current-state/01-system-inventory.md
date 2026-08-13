@@ -88,7 +88,7 @@ Five observations follow from the register itself, each measurable from the rows
 
 ## Recorded change history
 
-The banners record 33 dated change notes across the estate. They are the only change history the repository carries for these members, so they are reproduced here in full rather than summarised: each note names what was changed, and together they are the closest thing to a release history a migration team will find. Note ordering is not uniform — the COBOL and copybook banners list the newest note first, while every CL banner and the new business display file list notes oldest-first [QCPYSRC/POLDATA.cpy:L7-L9], [QCLSRC/DLYUPD.clle:L7-L8], [QDDSSRC/NBUWDSPF.dspf:L8-L9] — which is why the register's `Modified` column carries the newest date rather than the first note encountered.
+The banners record 33 dated change notes across the estate. They are the only change history the repository carries for these members, so they are reproduced here in full rather than summarised: each note names what was changed, and together they are the closest thing to a release history a migration team will find. Note ordering is not uniform — the COBOL and copybook banners list the newest note first, while the two CL banners carrying more than one note, and the new business display file, list theirs oldest-first [QCPYSRC/POLDATA.cpy:L7-L9], [QCLSRC/DLYUPD.clle:L7-L8], [QCLSRC/RUNNBUW.clle:L7-L8], [QDDSSRC/NBUWDSPF.dspf:L8-L9] — which is why the register's `Modified` column carries the newest date rather than the first note encountered.
 
 | Member | Banner line | Recorded change |
 |--------|-------------|-----------------|
@@ -168,7 +168,7 @@ DDS is a single fixed-format language serving four distinct purposes in this est
 
 Two things about the distribution are worth stating plainly, because both bear on how much of the estate a modern-language engineer can read on day one.
 
-- **Presentation outweighs persistence in the DDS layer.** Summing the table above, the four display files and two printer files account for 572 of the 788 DDS lines, against 216 lines for all four data members combined — the single largest device member is larger than the entire storage definition [QDDSSRC/NBUWDSPF.dspf:L1-L147], [QDDSSRC/POLMST.pf:L1-L81].
+- **Presentation outweighs persistence in the DDS layer.** Summing the table above, the four display files and two printer files account for 572 of the 788 DDS lines, against 216 lines for all four data members combined — and the largest single device member, the new business display file at 147 lines [QDDSSRC/NBUWDSPF.dspf:L1-L147], is larger than the largest data member, the policy master at 81 lines [QDDSSRC/POLMST.pf:L1-L81].
 - **The estate declares its own platform lock in every COBOL member.** All eight name `IBM-AS400` as both source computer and object computer [QCBLLESRC/MAINMENU.cbl:L27-L28], and the declared runtime baseline is `ILE COBOL V3R7 · OS/400 V4R2 · IBM AS/400 Model 9406` [README.md:L264]. The 4,126-line figure above is the one this register hands forward to [MOD-ADR-002 on the migration pattern](../decisions/MOD-ADR-002-migration-pattern.md) as a decision driver; what the baseline implies for supportability is assessed in [the platform and support status document](03-platform-and-support-status.md), which owns that conclusion.
 
 ## Object-count reconciliation
@@ -248,7 +248,7 @@ All 17 inline-marker sites are listed below, so the count can be checked exhaust
 | `QCBLLESRC/POLMSTINQ.cbl` | [QCBLLESRC/POLMSTINQ.cbl:L89] |
 | `QCPYSRC/POLDATA.cpy` | [QCPYSRC/POLDATA.cpy:L19], [QCPYSRC/POLDATA.cpy:L56], [QCPYSRC/POLDATA.cpy:L109], [QCPYSRC/POLDATA.cpy:L174] |
 
-Five members carry no 1998-11-14 annotation of any kind, and their banners end at creation: the session entry program [QCLSRC/STRTLIFE.clle:L1-L17], the policy master access path [QDDSSRC/POLMSTL1.lf:L1-L12], the menu screen [QDDSSRC/MNUDSPF.dspf:L1-L11], and both printer files [QDDSSRC/POLRPT.prtf:L1-L11], [QDDSSRC/CLMRPT.prtf:L1-L11]. Four of those five are also the four members that record no change note whatsoever; the session entry program is the exception, recording one earlier change to its [library list](../reference/glossary-ibm-i.md#library-list) handling [QCLSRC/STRTLIFE.clle:L7].
+Five members carry no 1998-11-14 annotation of any kind: the session entry program [QCLSRC/STRTLIFE.clle:L1-L17], the policy master access path [QDDSSRC/POLMSTL1.lf:L1-L12], the menu screen [QDDSSRC/MNUDSPF.dspf:L1-L11], and both printer files [QDDSSRC/POLRPT.prtf:L1-L11], [QDDSSRC/CLMRPT.prtf:L1-L11]. Four of those five are the same four members that record no change note whatsoever, so their banners end at creation. The session entry program is the exception: it was excluded from the review while still carrying one earlier change of its own, to its [library list](../reference/glossary-ibm-i.md#library-list) handling [QCLSRC/STRTLIFE.clle:L7].
 
 ### What "last change of record" does and does not mean
 
