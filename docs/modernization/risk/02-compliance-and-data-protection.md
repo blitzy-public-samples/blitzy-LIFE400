@@ -197,7 +197,7 @@ The register's auditability findings concern writes. **The estate contains no re
 
 **So a user can retrieve and view an insured's name, age, sum assured, premium and dates, one policy after another, and leave nothing behind.** The exposure is not a defect in the inquiry program — it is reading a file it opened for reading, which is exactly what it was built to do. It is the absence of any read-audit mechanism for it to participate in, and it compounds with `SEC-02`: because every signed-on user reaches every function, there is no population of users for whom this read path is out of bounds, and no record of which of them used it.
 
-**Closing control.** User-attributed audit records covering **reads as well as writes**, carrying an authenticated principal and a real event timestamp, written to a column the writing path demonstrably populates. The read half is stated explicitly because an audit design scoped only to mutations would close `SEC-06` and `SEC-07` and leave this finding entirely open. Designed in [the target security control design](../target-state/04-security-control-design.md), on the identity model to be recorded in the planned [MOD-ADR-005](../decisions/MOD-ADR-005-authentication-and-authorization.md).
+**Closing control.** User-attributed audit records covering **reads as well as writes**, carrying an authenticated principal and a real event timestamp, written to a column the writing path demonstrably populates. The read half is stated explicitly because an audit design scoped only to mutations would close `SEC-06` and `SEC-07` and leave this finding entirely open. Designed in [the target security control design](../target-state/04-security-control-design.md), on the identity model recorded in [MOD-ADR-005](../decisions/MOD-ADR-005-authentication-and-authorization.md), which carries the status Proposed.
 
 ## Framework applicability must be confirmed by the business
 
@@ -219,7 +219,7 @@ No processing of personal data is attributable to a person. Write attribution na
 
 ### Access control
 
-Every signed-on user reaches every function through an identical option set, with no role, permission or authority test in the application, and object authority is left undeclared by every creation command in the documented build. So the population able to read the columns inventoried above cannot be determined from this repository at all. Established as `SEC-01`, `SEC-02` and `SEC-03` in [the security risk register](01-security-risk-register.md); the identity and role model that closes them is to be recorded in the planned [MOD-ADR-005](../decisions/MOD-ADR-005-authentication-and-authorization.md).
+Every signed-on user reaches every function through an identical option set, with no role, permission or authority test in the application, and object authority is left undeclared by every creation command in the documented build. So the population able to read the columns inventoried above cannot be determined from this repository at all. Established as `SEC-01`, `SEC-02` and `SEC-03` in [the security risk register](01-security-risk-register.md); the identity and role model that closes them is recorded in [MOD-ADR-005](../decisions/MOD-ADR-005-authentication-and-authorization.md), which carries the status Proposed.
 
 ### Transport security
 
@@ -252,7 +252,7 @@ This document owns the column-level classification of personal, health-related, 
 - The design of every control named above, control by control, with traceability back to the gap it closes — [the target security control design](../target-state/04-security-control-design.md).
 - Target column names, target types, transformation rules, keys, nullability and any target structure for riders — [the target data model and schema mapping](../target-state/03-target-data-model-and-schema-mapping.md).
 - Extraction, transcoding, validation, load and reconciliation of the data itself — [the data migration runbook](../migration/04-data-migration-runbook.md), planned and not yet written.
-- The identity and role model, to be captured as a supersedable decision — [MOD-ADR-005](../decisions/MOD-ADR-005-authentication-and-authorization.md); rider persistence — [MOD-ADR-009](../decisions/MOD-ADR-009-rider-persistence.md). Both records are planned and neither has been written, so neither governs anything today.
+- The identity and role model, captured as a supersedable decision — [MOD-ADR-005](../decisions/MOD-ADR-005-authentication-and-authorization.md), written with the status Proposed; rider persistence — [MOD-ADR-009](../decisions/MOD-ADR-009-rider-persistence.md), planned and not yet written. Neither record is accepted, so neither governs anything today.
 
 ## Source citations
 
