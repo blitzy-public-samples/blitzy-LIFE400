@@ -302,7 +302,7 @@ Five columns are coded in practice and have no declared domain anywhere — not 
 | `CURCD` | [QDDSSRC/POLMST.pf:L29] | Nothing beyond the name: a three-character currency code, with no value list in either the schema or the contract | Constrained to a value list confirmed by the business; the load profiles the distinct values present |
 | `OCCLAS` | [QDDSSRC/POLMST.pf:L43] | A range appears in the declared text, `1-4`, and nowhere else [QDDSSRC/POLMST.pf:L43] | Range constraint over `smallint`, promoting the comment to a constraint |
 | `CLMSTS` | [QDDSSRC/CLMPF.pf:L43] | Nothing at all — the contract declares no corresponding item, so its values are written down in no member | Value list from the load profile, confirmed by the business, and kept distinct from claim decision and investigation status |
-| `BENREL` | [QDDSSRC/CLMPF.pf:L40] | Free text of twenty characters with no domain | Left as text. A relationship vocabulary is worth having and inventing one from fifty rows of data would not produce it |
+| `BENREL` | [QDDSSRC/CLMPF.pf:L40] | Free text of twenty characters with no domain | Left as text. A relationship vocabulary would be worth having, but deriving one from whatever values happen to be present would produce a list shaped by the data rather than by the business |
 | `PLANCD` | [QDDSSRC/POLMST.pf:L23] | Three plan codes exist, and each program carries their parameters in a compiled branch rather than reading them from anywhere | Foreign key to a `plan` reference table holding the parameters, described under [contract items that do not become columns](#contract-items-that-do-not-become-columns) |
 
 ## Primary keys
